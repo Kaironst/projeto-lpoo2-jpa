@@ -1,0 +1,11 @@
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/Main.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/pessoa/Aluno.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/curso/Curriculo.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/curso/unidadeCurricular/Disciplina.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/curso/Curso.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/pessoa/Professor.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/curso/unidadeCurricular/AtividadeFormativa.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/curso/unidadeCurricular/AtividadeExtensao.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/curso/unidadeCurricular/UnidadeCurricular.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/pessoa/Administrador.java
+/home/kaironst/trabalhos/LPOO2/Projeto-JPA/projeto/src/main/java/br/ufpr/entity/pessoa/Coordenador.java

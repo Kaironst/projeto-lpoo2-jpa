@@ -1,4 +1,4 @@
-package br.ufpr.entity.curso.unidadeCurricular;
+package br.ufpr.entity.pessoa;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,18 +10,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Inheritance(strategy = InheritanceType.JOINED)
 @Entity
-public class UnidadeCurricular {
+public class Pessoa {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	private String nome;
-	private String descricao;
+	private String nome, email, cpf;
 
 }
