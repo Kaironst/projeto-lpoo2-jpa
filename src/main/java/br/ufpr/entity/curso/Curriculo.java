@@ -21,7 +21,7 @@ public class Curriculo {
 
 	private int periodo;
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	private Curso curso;
 
 }
