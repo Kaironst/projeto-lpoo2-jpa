@@ -15,11 +15,16 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Questao {
 
+	static enum Tipo {
+		DISCURSIVA,
+		OBJETIVA_UNICA,
+		OBJETIVA_MULTIPLA
+	}
+
 	private long id;
 	private String enunciado;
 	private float valor;
-	private int tipo;
-	private int attribute;
+	private Tipo tipo;
 
 	@OneToMany(mappedBy = "questao")
 	private List<RespostaQuestao> respostasQuestao;
