@@ -6,6 +6,7 @@
 	<groupId>br.ufpr</groupId>
 	<artifactId>projeto</artifactId>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
 
 	<name>projeto</name>
 	<!-- FIXME change it to the project's website -->
@@ -74,6 +75,15 @@
 	<build>
 		<pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
 			<plugins>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.4.0</version>
+					<configuration>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					</configuration>
+				</plugin>
 				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>

@@ -13,7 +13,7 @@ public class MainPageServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		req.getRequestDispatcher("/WEB-INF/views/mainpage.jsp");
+		req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
 	}
 
 }
