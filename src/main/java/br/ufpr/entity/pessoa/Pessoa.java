@@ -1,11 +1,12 @@
 package br.ufpr.entity.pessoa;
 
+import br.ufpr.entity.curso.Curso;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Inheritance(strategy = InheritanceType.JOINED)
 @Entity
 public class Pessoa {
 
@@ -21,6 +21,14 @@ public class Pessoa {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	private String nome, email, cpf;
+	private String nome, email, cpf, matricula;
+
+	private Integer período;
+
+	@ManyToOne
+	private TipoPessoa tipo;
+
+	@ManyToMany
+	private Curso curso;
 
 }

@@ -2,11 +2,12 @@ package br.ufpr.entity.curso;
 
 import java.util.List;
 
-import br.ufpr.entity.pessoa.Aluno;
+import br.ufpr.entity.pessoa.Pessoa;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 
@@ -21,8 +22,8 @@ public class Curso {
 	private String nome;
 	private int numPeriodos;
 
-	@OneToMany(mappedBy = "curso")
-	private List<Aluno> alunos;
+	@ManyToMany(mappedBy = "curso")
+	private List<Pessoa> pessoas;
 
 	@OneToMany(mappedBy = "curso")
 	private List<Curriculo> curriculos;

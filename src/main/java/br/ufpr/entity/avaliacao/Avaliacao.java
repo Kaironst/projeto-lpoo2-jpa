@@ -2,17 +2,19 @@ package br.ufpr.entity.avaliacao;
 
 import java.util.List;
 
-import br.ufpr.entity.curso.unidadeCurricular.Disciplina;
+import br.ufpr.entity.curso.UnidadeCurricular;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 @Entity
 public class Avaliacao {
 
@@ -21,7 +23,7 @@ public class Avaliacao {
 	private boolean isAnon;
 
 	@ManyToOne
-	private Disciplina disciplina;
+	private UnidadeCurricular unidadeCurricular;
 
 	@OneToMany(mappedBy = "avaliacao")
 	private List<Questao> questoes;

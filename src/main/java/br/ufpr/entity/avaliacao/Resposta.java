@@ -2,22 +2,24 @@ package br.ufpr.entity.avaliacao;
 
 import java.util.List;
 
-import br.ufpr.entity.pessoa.Aluno;
+import br.ufpr.entity.pessoa.Pessoa;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 @Entity
 public class Resposta {
 
 	private long id;
-	private double nota;
+	private Double nota;
 
 	@ManyToOne
 	private Avaliacao avaliacao;
@@ -26,6 +28,6 @@ public class Resposta {
 	private List<RespostaQuestao> respostaQuestoes;
 
 	@ManyToOne
-	private Aluno aluno;
+	private Pessoa pessoa;
 
 }
