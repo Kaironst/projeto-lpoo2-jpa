@@ -1,135 +1,138 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
-
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Nova Avaliação</title>
+  <meta charset="UTF-8" />
+  <title>Criar Nova Avaliação</title>
+  <style>
+    .questao-block { border: 1px solid #ccc; padding: 12px; margin-bottom: 12px; }
+    .alternativas { margin-top: 10px; padding-left: 20px; }
+    .alt-block { margin-top: 6px; }
+  </style>
+</head>
+<body>
 
-    <style>
-        .questao-block {
-            border: 1px solid #888;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-        .alt-block {
-            margin-left: 20px;
-            margin-top: 5px;
-        }
-    </style>
+  <h1>Nova Avaliação</h1>
 
-<script>
-    let questaoIdCounter = 0;  // unique IDs forever
+  <form action="avaliacao-create" method="post">
+
+    <div>
+      <label>
+        <input type="checkbox" name="isAberta" /> Aberta
+      </label>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" name="isAnon" /> Anônima
+      </label>
+    </div>
+
+    <h2>Questões</h2>
+    <div id="questoesContainer">
+      <!-- Dinâmico: questões serão adicionadas por JS -->
+    </div>
+
+    <button type="button" onclick="addQuestao()">+ Adicionar Questão</button>
+
+    <br /><br />
+    <button type="submit">Salvar Avaliação</button>
+  </form>
+
+  <script>
+    let questaoCounter = 0;
 
     function addQuestao() {
-        const container = document.getElementById("questoesContainer");
-        const qId = questaoIdCounter++;   // unique ID
+      const qId = questaoCounter++;
+      const container = document.getElementById("questoesContainer");
 
-        const html = `
-        <div class="questao-block" id="questao_${qId}">
-            <h3>Questão</h3>
+      const questaoDiv = document.createElement("div");
+      questaoDiv.className = "questao-block";
+      questaoDiv.dataset.qid = qId;
 
-            <label>Enunciado:</label><br/>
-            <textarea name="questao[${qId}].enunciado" rows="3" cols="60" required></textarea><br/><br/>
-
-            <label>Valor:</label>
-            <input type="number" step="0.1" name="questao[${qId}].valor" required/><br/><br/>
-
-            <label>Tipo:</label>
-            <select name="questao[${qId}].tipo"
-                    onchange="toggleAlternativas(${qId}, this.value)">
-                <option value="DISCURSIVA">Discursiva</option>
-                <option value="OBJETIVA_UNICA">Objetiva Única</option>
-                <option value="OBJETIVA_MULTIPLA">Objetiva Múltipla</option>
-            </select>
-
-            <div id="alternativas_${qId}" style="display:none; margin-top:10px;">
-                <h4>Alternativas</h4>
-                <div id="altContainer_${qId}"></div>
-
-                <button type="button" onclick="addAlternativa(${qId})">
-                    Adicionar Alternativa
-                </button>
-            </div>
-
-            <br/>
-            <button type="button"
-                    onclick="removeQuestao(${qId})"
-                    style="color:red;">
-                Remover Questão
-            </button>
+      questaoDiv.innerHTML = `
+        <h3>Questão</h3>
+        <div>
+          <label>Enunciado:</label><br>
+          <textarea name="questao[\${qId}].enunciado" rows="3" cols="60" required></textarea>
         </div>
-        `;
-
-        container.insertAdjacentHTML("beforeend", html);
-    }
-
-    function removeQuestao(qId) {
-        const el = document.getElementById(`questao_${qId}`);
-        if (el) el.remove();
-    }
-
-    function toggleAlternativas(qId, tipo) {
-        const div = document.getElementById(`alternativas_${qId}`);
-        div.style.display = (tipo === "DISCURSIVA") ? "none" : "block";
-    }
-
-    function addAlternativa(qId) {
-        const container = document.getElementById(`altContainer_${qId}`);
-        const altIndex = container.children.length;
-
-        const html = `
-        <div class="alt-block" id="questao_${qId}_alt_${altIndex}">
-            <label>Alternativa ${altIndex + 1}:</label><br/>
-            <input type="text"
-                   name="questao[${qId}].alternativa[${altIndex}].enunciado"
-                   required/>
-
-            <label style="margin-left:10px;">
-                Correta?
-                <input type="checkbox"
-                       name="questao[${qId}].alternativa[${altIndex}].correta"/>
-            </label>
-
-            <button type="button"
-                    onclick="removeAlternativa(${qId}, ${altIndex})"
-                    style="color:red; margin-left:10px;">
-                Remover
-            </button>
+        <div>
+          <label>Valor:</label>
+          <input type="number" step="0.1" name="questao[\${qId}].valor" required>
         </div>
-        `;
+        <div>
+          <label>Tipo:</label>
+          <select name="questao[\${qId}].tipo" class="tipo-select">
+            <option value="DISCURSIVA">Discursiva</option>
+            <option value="OBJETIVA_UNICA">Objetiva Única</option>
+            <option value="OBJETIVA_MULTIPLA">Objetiva Múltipla</option>
+          </select>
+        </div>
+        <div class="alternativas" style="display: none;">
+          <h4>Alternativas</h4>
+          <div class="alternativas-list"></div>
+          <button type="button" class="add-alt">Adicionar Alternativa</button>
+        </div>
+        <div>
+          <button type="button" class="remove-questao" style="color:red;">Remover Questão</button>
+        </div>
+      `;
 
-        container.insertAdjacentHTML("beforeend", html);
+      container.appendChild(questaoDiv);
     }
 
-    function removeAlternativa(qId, altIndex) {
-        const el = document.getElementById(`questao_${qId}_alt_${altIndex}`);
-        if (el) el.remove();
+    // Delegation for “tipo” select change & add/remove buttons:
+    document.addEventListener("click", function (e) {
+      const addAltBtn = e.target.closest(".add-alt");
+      if (addAltBtn) {
+        const questaoEl = addAltBtn.closest(".questao-block");
+        addAlternativa(questaoEl);
+        return;
+      }
+      const remQuestaoBtn = e.target.closest(".remove-questao");
+      if (remQuestaoBtn) {
+        const questaoEl = remQuestaoBtn.closest(".questao-block");
+        questaoEl.remove();
+        return;
+      }
+      const remAltBtn = e.target.closest(".remove-alt");
+      if (remAltBtn) {
+        remAltBtn.closest(".alt-block").remove();
+        return;
+      }
+    });
+
+    document.addEventListener("change", function (e) {
+      const sel = e.target.closest(".tipo-select");
+      if (!sel) return;
+      const questaoEl = sel.closest(".questao-block");
+      const altContainer = questaoEl.querySelector(".alternativas");
+      if (sel.value === "DISCURSIVA") {
+        altContainer.style.display = "none";
+        altContainer.querySelector(".alternativas-list").innerHTML = "";
+      } else {
+        altContainer.style.display = "block";
+      }
+    });
+
+    function addAlternativa(questaoEl) {
+      const qId = questaoEl.dataset.qid;
+      const list = questaoEl.querySelector(".alternativas-list");
+      const altIndex = list.children.length;
+
+      const altDiv = document.createElement("div");
+      altDiv.className = "alt-block";
+
+      altDiv.innerHTML = `
+        <input type="text" name="questao[\${qId}].alternativa[\${altIndex}].enunciado" required>
+        <label>
+          Corre­ta?
+          <input type="checkbox" name="questao[\${qId}].alternativa[\${altIndex}].correta">
+        </label>
+        <button type="button" class="remove-alt" style="color:red;">Remover Alternativa</button>
+      `;
+
+      list.appendChild(altDiv);
     }
-</script>
-</head>
-
-<body>
-    <h1>Criar Nova Avaliação</h1>
-
-    <form action="avaliacao-create" method="post">
-
-        <label>Avaliação Aberta?</label>
-        <input type="checkbox" name="isAberta"/> <br/><br/>
-
-        <label>Avaliação Anônima?</label>
-        <input type="checkbox" name="isAnon"/> <br/><br/>
-
-        <h2>Questões</h2>
-
-        <div id="questoesContainer"></div>
-
-        <button type="button" onclick="addQuestao()">Adicionar Questão</button>
-
-        <br/><br/>
-        <button type="submit">Salvar Avaliação</button>
-
-    </form>
+  </script>
 
 </body>
 </html>
