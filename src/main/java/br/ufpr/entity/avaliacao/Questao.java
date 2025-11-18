@@ -2,7 +2,11 @@ package br.ufpr.entity.avaliacao;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -17,24 +21,27 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Questao {
 
-	public static enum Tipo {
-		DISCURSIVA,
-		OBJETIVA_UNICA,
-		OBJETIVA_MULTIPLA
-	}
+  public static enum Tipo {
+    DISCURSIVA,
+    OBJETIVA_UNICA,
+    OBJETIVA_MULTIPLA
+  }
 
-	private long id;
-	private String enunciado;
-	private float valor;
-	private Tipo tipo;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-	@OneToMany(mappedBy = "questao")
-	private List<RespostaQuestao> respostasQuestao;
+  private String enunciado;
+  private float valor;
+  private Tipo tipo;
 
-	@ManyToOne
-	private Avaliacao avaliacao;
+  @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<RespostaQuestao> respostasQuestao;
 
-	@OneToMany(mappedBy = "questao")
-	private List<Alternativa> alternativas;
+  @ManyToOne
+  private Avaliacao avaliacao;
+
+  @OneToMany(mappedBy = "questao")
+  private List<Alternativa> alternativas;
 
 }

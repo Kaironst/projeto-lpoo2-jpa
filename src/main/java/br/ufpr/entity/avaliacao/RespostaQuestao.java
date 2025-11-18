@@ -2,7 +2,11 @@ package br.ufpr.entity.avaliacao;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -17,28 +21,31 @@ import lombok.NoArgsConstructor;
 @Entity
 public class RespostaQuestao {
 
-	private long id;
-	private String respDiscursiva;
-	private Boolean correcaoDiscursiva;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-	@ManyToMany
-	private List<Alternativa> respObjetiva;
+  private String respDiscursiva;
+  private Boolean correcaoDiscursiva;
 
-	@ManyToOne
-	private Resposta resposta;
+  @ManyToMany(cascade = CascadeType.ALL)
+  private List<Alternativa> respObjetiva;
 
-	@ManyToOne
-	private Questao questao;
+  @ManyToOne
+  private Resposta resposta;
 
-	public Boolean isCorreta() {
-		if (this.getQuestao().getTipo() == Questao.Tipo.DISCURSIVA)
-			return this.correcaoDiscursiva;
-		if (this.getQuestao().getTipo() == Questao.Tipo.OBJETIVA_UNICA)
-			return this.getRespObjetiva().get(0).isCorreta();
-		for (Alternativa alternativa : this.getRespObjetiva())
-			if (!alternativa.isCorreta())
-				return false;
-		return true;
-	}
+  @ManyToOne
+  private Questao questao;
+
+  public Boolean isCorreta() {
+    if (this.getQuestao().getTipo() == Questao.Tipo.DISCURSIVA)
+      return this.correcaoDiscursiva;
+    if (this.getQuestao().getTipo() == Questao.Tipo.OBJETIVA_UNICA)
+      return this.getRespObjetiva().get(0).isCorreta();
+    for (Alternativa alternativa : this.getRespObjetiva())
+      if (!alternativa.isCorreta())
+        return false;
+    return true;
+  }
 
 }
