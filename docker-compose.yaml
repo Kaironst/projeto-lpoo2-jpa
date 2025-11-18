@@ -1,17 +1,18 @@
 services:
   db:
     image: postgres
-    container_name: postgres-db
+    container_name: lpoo2-postgres-db
     ports:
       - "8081:5432"
-    
+
     environment:
-      POSTGRES_DB: web2database
+      POSTGRES_DB: lpoo2database
       POSTGRES_USER: usuario
       POSTGRES_PASSWORD: admin
-    
+      PGDATA: /var/lib/postgresql/data
+
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  pgdata:
