@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Questao {
 
-	static enum Tipo {
+	public static enum Tipo {
 		DISCURSIVA,
 		OBJETIVA_UNICA,
 		OBJETIVA_MULTIPLA

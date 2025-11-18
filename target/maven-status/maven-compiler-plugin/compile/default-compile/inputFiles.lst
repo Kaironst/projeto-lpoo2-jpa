@@ -1,4 +1,5 @@
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/controller/MainPageServlet.java
+/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/controller/NovaAvaliacaoServlet.java
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/avaliacao/Alternativa.java
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/avaliacao/Avaliacao.java
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/avaliacao/Questao.java
@@ -6,12 +7,6 @@
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/avaliacao/RespostaQuestao.java
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/Curriculo.java
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/Curso.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/unidadeCurricular/AtividadeExtensao.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/unidadeCurricular/AtividadeFormativa.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/unidadeCurricular/Disciplina.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/unidadeCurricular/UnidadeCurricular.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/pessoa/Administrador.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/pessoa/Aluno.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/pessoa/Coordenador.java
+/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/curso/UnidadeCurricular.java
 /home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/pessoa/Pessoa.java
-/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/pessoa/Professor.java
+/home/kaironst/trabalhos/lpoo2/projeto-lpoo2-jpa/src/main/java/br/ufpr/entity/pessoa/TipoPessoa.java

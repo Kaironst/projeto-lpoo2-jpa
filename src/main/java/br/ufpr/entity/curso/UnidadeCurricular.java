@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class UnidadeCurricular {
 
-	static enum Tipo {
+	public static enum Tipo {
 		DISCIPLINA,
 		ATIVIDADE_FORMATIVA,
 		ATIVIDADE_EXTENSAO
