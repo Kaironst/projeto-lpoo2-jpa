@@ -23,15 +23,16 @@ public class LoginServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    @SuppressWarnings("unused")
+
     String email = req.getParameter("email");
-    @SuppressWarnings("unused")
     String senha = req.getParameter("senha");
 
     EntityManager em = Persistence.createEntityManagerFactory("persistence").createEntityManager();
 
     TypedQuery<Pessoa> query = em.createQuery(
         "select p from Pessoa p where p.email = :email and p.senha = :senha", Pessoa.class);
+    query.setParameter("email", email);
+    query.setParameter("senha", senha);
 
     Pessoa usuario = query.getResultStream().findFirst().orElse(null);
 
