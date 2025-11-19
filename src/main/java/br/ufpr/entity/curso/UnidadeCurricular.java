@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,20 +22,24 @@ import lombok.NoArgsConstructor;
 @Entity
 public class UnidadeCurricular {
 
-	public static enum Tipo {
-		DISCIPLINA,
-		ATIVIDADE_FORMATIVA,
-		ATIVIDADE_EXTENSAO
-	}
+  public static enum Tipo {
+    DISCIPLINA,
+    ATIVIDADE_FORMATIVA,
+    ATIVIDADE_EXTENSAO
+  }
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-	private String nome;
-	private String descricao;
+  private String nome;
+  private String descricao;
+  private Tipo tipo;
 
-	@OneToMany(mappedBy = "unidadeCurricular")
-	private List<Avaliacao> avaliacoes;
+  @ManyToOne
+  private Curriculo curriculo;
+
+  @OneToMany(mappedBy = "unidadeCurricular")
+  private List<Avaliacao> avaliacoes;
 
 }

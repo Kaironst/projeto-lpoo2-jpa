@@ -1,10 +1,13 @@
 package br.ufpr.entity.curso;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,13 +18,16 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Curriculo {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-	private int periodo;
+  private int periodo;
 
-	@ManyToOne(optional = false)
-	private Curso curso;
+  @ManyToOne(optional = false)
+  private Curso curso;
+
+  @OneToMany(mappedBy = "curriculo")
+  private List<UnidadeCurricular> unidadesCurriculares;
 
 }
