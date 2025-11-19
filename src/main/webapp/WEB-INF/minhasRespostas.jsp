@@ -34,26 +34,30 @@
               <p><strong>Resposta:</strong>
                 <c:choose>
                   <c:when test="${respostaQuestao.questao.tipo == 'DISCURSIVA'}">
-                    <pre>${respostaQuestao.respDiscursiva}</pre>
+                    <c:choose>
+                      <c:when test="${not empty respostaQuestao.respDiscursiva}">
+                        <pre>${respostaQuestao.respDiscursiva}</pre>
+                      </c:when>
+                      <c:otherwise>
+                        <em>Não respondida</em>
+                      </c:otherwise>
+                    </c:choose>
                   </c:when>
-                  <c:when test="${respostaQuestao.questao.tipo == 'OBJETIVA_UNICA' || respostaQuestao.questao.tipo == 'OBJETIVA_MULTIPLA'}">
-                    <ul>
-                      <c:forEach var="alt" items="${respostaQuestao.respObjetiva}">
-                        <li>${alt.enunciado} <c:if test="${alt.correta}">(Correta)</c:if></li>
-                      </c:forEach>
-                    </ul>
-                  </c:when>
-                </c:choose>
-              </p>
 
-              <p><strong>Correção:</strong> 
-                <c:choose>
-                  <c:when test="${respostaQuestao.questao.tipo == 'DISCURSIVA'}">
-                    <c:out value="${respostaQuestao.correcaoDiscursiva != null ? (respostaQuestao.correcaoDiscursiva ? 'Correta' : 'Incorreta') : 'Não corrigida'}" />
+                  <c:when test="${respostaQuestao.questao.tipo == 'OBJETIVA_UNICA' || respostaQuestao.questao.tipo == 'OBJETIVA_MULTIPLA'}">
+                    <c:choose>
+                      <c:when test="${not empty respostaQuestao.respObjetiva}">
+                        <ul>
+                          <c:forEach var="alt" items="${respostaQuestao.respObjetiva}">
+                            <li>${alt.enunciado} <c:if test="${alt.correta}">(Correta)</c:if></li>
+                          </c:forEach>
+                        </ul>
+                      </c:when>
+                      <c:otherwise>
+                        <em>Não respondida</em>
+                      </c:otherwise>
+                    </c:choose>
                   </c:when>
-                  <c:otherwise>
-                    <c:out value="${respostaQuestao.correta ? 'Correta' : 'Incorreta'}" />
-                  </c:otherwise>
                 </c:choose>
               </p>
 
