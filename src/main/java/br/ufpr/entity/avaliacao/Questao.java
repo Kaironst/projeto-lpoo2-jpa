@@ -41,7 +41,7 @@ public class Questao {
   @ManyToOne
   private Avaliacao avaliacao;
 
-  @OneToMany(mappedBy = "questao")
+  @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Alternativa> alternativas;
 
 }
