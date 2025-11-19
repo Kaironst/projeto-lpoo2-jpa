@@ -3,6 +3,7 @@ package br.ufpr.entity.curso;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +28,7 @@ public class Curriculo {
   @ManyToOne(optional = false)
   private Curso curso;
 
-  @OneToMany(mappedBy = "curriculo")
+  @OneToMany(mappedBy = "curriculo", cascade = CascadeType.REMOVE)
   private List<UnidadeCurricular> unidadesCurriculares;
 
 }

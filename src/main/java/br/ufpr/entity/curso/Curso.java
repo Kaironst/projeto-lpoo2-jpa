@@ -3,6 +3,7 @@ package br.ufpr.entity.curso;
 import java.util.List;
 
 import br.ufpr.entity.pessoa.Pessoa;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,16 +16,16 @@ import lombok.Data;
 @Data
 public class Curso {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-	private String nome;
-	private int numPeriodos;
+    private String nome;
+    private int numPeriodos;
 
-	@ManyToMany(mappedBy = "curso")
-	private List<Pessoa> pessoas;
+    @ManyToMany(mappedBy = "curso")
+    private List<Pessoa> pessoas;
 
-	@OneToMany(mappedBy = "curso")
-	private List<Curriculo> curriculos;
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.REMOVE)
+    private List<Curriculo> curriculos;
 }
