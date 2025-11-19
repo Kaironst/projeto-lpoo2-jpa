@@ -44,7 +44,7 @@ public class UserServlet extends HttpServlet {
             req.setAttribute("tipos", tipos);
             req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
     }
 
@@ -61,7 +61,7 @@ public class UserServlet extends HttpServlet {
             try {
                 pessoa.setPeriodo(Integer.valueOf(req.getParameter("periodo")));
             } catch (Exception e) {
-                pessoa.setPeriodo(1); // valor padrão
+                pessoa.setPeriodo(1); // default pra 1
             }
             
             long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
@@ -76,7 +76,7 @@ public class UserServlet extends HttpServlet {
 
             resp.sendRedirect("users");
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
     }
 }

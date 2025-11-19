@@ -40,22 +40,21 @@ public class CursoServlet extends HttpServlet {
                 if (curso != null) {
                     var tx = em.getTransaction();
                     tx.begin();
-                    em.remove(curso); // Cascata remove Curriculos e UnidadesCurriculares automaticamente
+                    em.remove(curso);
                     tx.commit();
                 }
 
                 resp.sendRedirect(req.getContextPath() + "/crud/cursos");
-                return; // importante retornar após o redirect
+                return;
             }
 
-            // Listagem de todos os cursos
             List<Curso> cursos = em.createQuery("SELECT c FROM Curso c", Curso.class).getResultList();
             req.setAttribute("cursos", cursos);
 
             req.getRequestDispatcher("/WEB-INF/crud/curso.jsp").forward(req, resp);
 
         } finally {
-            em.close(); // sempre fechar, mesmo que ocorra exceção
+            em.close();
         }
     }
 
@@ -73,7 +72,7 @@ public class CursoServlet extends HttpServlet {
             tx.begin();
 
             if (idStr != null && !idStr.isEmpty()) {
-                // Edição
+
                 long id = Long.parseLong(idStr);
                 Curso curso = em.find(Curso.class, id);
                 if (curso != null) {
@@ -82,7 +81,7 @@ public class CursoServlet extends HttpServlet {
                     em.merge(curso);
                 }
             } else {
-                // Novo curso
+
                 Curso curso = new Curso();
                 curso.setNome(nome);
                 curso.setNumPeriodos(numPeriodos);
@@ -93,7 +92,7 @@ public class CursoServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/crud/cursos");
 
         } finally {
-            em.close(); // sempre fechar
+            em.close();
         }
     }
 }

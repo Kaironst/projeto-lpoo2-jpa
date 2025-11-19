@@ -30,7 +30,7 @@ public class ListaAvaliacoesServerlet extends HttpServlet {
             req.setAttribute("avaliacoes", avaliacoes);
             req.getRequestDispatcher("/WEB-INF/listaAvaliacoes.jsp").forward(req, resp);
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
     }
 }

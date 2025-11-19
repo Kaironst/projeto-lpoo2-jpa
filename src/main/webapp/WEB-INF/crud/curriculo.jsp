@@ -10,7 +10,6 @@
 
     <h1>Cadastro de Currículo</h1>
 
-    <!-- FORMULÁRIO -->
     <form action="curriculos" method="post">
         <input type="hidden" name="id" value="${curriculoEditar.id}" />
 
@@ -35,7 +34,6 @@
 
     <hr/>
 
-    <!-- LISTAGEM -->
     <h2>Currículos Existentes</h2>
 
     <table border="1" cellpadding="5">

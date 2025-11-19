@@ -46,14 +46,11 @@ public class UnidadeCurricularServlet extends HttpServlet {
                 }
 
                 resp.sendRedirect(req.getContextPath() + "/crud/unidades");
-                return; // evita continuar processando após redirect
+                return;
             }
 
-            // Listagem
-            List<UnidadeCurricular> unidades = em.createQuery("SELECT u FROM UnidadeCurricular u", UnidadeCurricular.class)
-                                                 .getResultList();
-            List<Curriculo> curriculos = em.createQuery("SELECT c FROM Curriculo c", Curriculo.class)
-                                          .getResultList();
+            List<UnidadeCurricular> unidades = em.createQuery("SELECT u FROM UnidadeCurricular u", UnidadeCurricular.class).getResultList();
+            List<Curriculo> curriculos = em.createQuery("SELECT c FROM Curriculo c", Curriculo.class).getResultList();
 
             req.setAttribute("unidades", unidades);
             req.setAttribute("curriculos", curriculos);
@@ -84,7 +81,6 @@ public class UnidadeCurricularServlet extends HttpServlet {
             tx.begin();
 
             if (idStr != null && !idStr.isEmpty()) {
-                // Edição
                 long id = Long.parseLong(idStr);
                 UnidadeCurricular unidade = em.find(UnidadeCurricular.class, id);
                 if (unidade != null) {
@@ -95,7 +91,6 @@ public class UnidadeCurricularServlet extends HttpServlet {
                     em.merge(unidade);
                 }
             } else {
-                // Nova Unidade Curricular
                 UnidadeCurricular unidade = new UnidadeCurricular();
                 unidade.setNome(nome);
                 unidade.setDescricao(descricao);

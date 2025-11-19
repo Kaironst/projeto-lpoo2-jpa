@@ -27,10 +27,10 @@ public class NovaAvaliacaoServlet extends HttpServlet {
 
         EntityManager em = EMF.createEntityManager();
         try {
-            em.find(Avaliacao.class, 1); // apenas teste, pode ser removido
+            em.find(Avaliacao.class, 1);
             req.getRequestDispatcher("/WEB-INF/novaAvaliacao.jsp").forward(req, resp);
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
     }
 
@@ -76,7 +76,6 @@ public class NovaAvaliacaoServlet extends HttpServlet {
 
         avaliacao.setQuestoes(questoes);
 
-        // Hibernate Persist com try-finally
         EntityManager em = EMF.createEntityManager();
         try {
             var transaction = em.getTransaction();
@@ -87,7 +86,7 @@ public class NovaAvaliacaoServlet extends HttpServlet {
             em.getTransaction().rollback();
             throw new ServletException("Erro ao salvar avaliação", e);
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
 
         resp.sendRedirect("lista-avaliacoes");

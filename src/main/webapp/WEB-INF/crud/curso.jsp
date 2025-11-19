@@ -10,7 +10,6 @@
 
     <h1>Cadastro de Curso</h1>
 
-    <!-- FORMULÁRIO: adicionar ou editar -->
     <form action="cursos" method="post">
         <input type="hidden" name="id" value="${cursoEditar.id}" />
 
@@ -27,7 +26,6 @@
 
     <hr/>
 
-    <!-- LISTAGEM -->
     <h2>Cursos Existentes</h2>
 
     <table border="1" cellpadding="5">

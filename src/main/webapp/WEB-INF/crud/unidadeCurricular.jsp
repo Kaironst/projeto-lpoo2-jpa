@@ -10,7 +10,6 @@
 
     <h1>Cadastro de Unidade Curricular</h1>
 
-    <!-- FORMULÁRIO: adicionar ou editar -->
     <form action="unidades" method="post">
         <input type="hidden" name="id" value="${unidadeEditar.id}" />
 
@@ -45,7 +44,6 @@
 
     <hr/>
 
-    <!-- LISTAGEM -->
     <h2>Unidades Curriculares Existentes</h2>
 
     <table border="1" cellpadding="5">

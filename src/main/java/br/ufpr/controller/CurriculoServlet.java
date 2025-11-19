@@ -41,15 +41,14 @@ public class CurriculoServlet extends HttpServlet {
                 if (curriculo != null) {
                     var tx = em.getTransaction();
                     tx.begin();
-                    em.remove(curriculo); // cascata remove UnidadesCurriculares
+                    em.remove(curriculo);
                     tx.commit();
                 }
 
                 resp.sendRedirect(req.getContextPath() + "/crud/curriculos");
-                return; // evita continuar processando após redirect
+                return;
             }
 
-            // Listagem
             List<Curriculo> curriculos = em.createQuery("SELECT c FROM Curriculo c", Curriculo.class).getResultList();
             List<Curso> cursos = em.createQuery("SELECT c FROM Curso c", Curso.class).getResultList();
 
@@ -59,7 +58,7 @@ public class CurriculoServlet extends HttpServlet {
             req.getRequestDispatcher("/WEB-INF/crud/curriculo.jsp").forward(req, resp);
 
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
     }
 
@@ -79,7 +78,7 @@ public class CurriculoServlet extends HttpServlet {
             tx.begin();
 
             if (idStr != null && !idStr.isEmpty()) {
-                // Edição
+
                 long id = Long.parseLong(idStr);
                 Curriculo curriculo = em.find(Curriculo.class, id);
                 if (curriculo != null) {
@@ -88,7 +87,6 @@ public class CurriculoServlet extends HttpServlet {
                     em.merge(curriculo);
                 }
             } else {
-                // Novo Currículo
                 Curriculo curriculo = new Curriculo();
                 curriculo.setPeriodo(periodo);
                 curriculo.setCurso(curso);
@@ -99,7 +97,7 @@ public class CurriculoServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/crud/curriculos");
 
         } finally {
-            em.close(); // garante fechamento da conexão
+            em.close();
         }
     }
 }
