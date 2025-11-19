@@ -10,7 +10,7 @@
 
   <h1>Resolver Avaliação #${avaliacao.id}</h1>
 
-  <form action="salvar-resposta" method="post">
+  <form action="resolver-avaliacao" method="post">
     <input type="hidden" name="avaliacaoId" value="${avaliacao.id}" />
 
     <c:forEach var="questao" items="${avaliacao.questoes}" varStatus="qs">
