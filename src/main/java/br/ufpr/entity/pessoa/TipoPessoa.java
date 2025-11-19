@@ -21,10 +21,17 @@ public class TipoPessoa {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   long id;
 
+  private String nome;
+  
   @OneToMany(mappedBy = "tipo")
   private List<Pessoa> pessoas;
 
   private Boolean podeCriarForms;
   private Boolean podeResponderForms;
-
+  
+  public TipoPessoa(String nome, boolean podeCriarForms, boolean podeResponderForms) {
+        this.nome = nome;
+        this.podeCriarForms = podeCriarForms;
+        this.podeResponderForms = podeResponderForms;
+    }
 }

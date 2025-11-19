@@ -23,9 +23,9 @@ public class Pessoa {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  private String nome, email, cpf, matricula;
-
-  private Integer período;
+  private String nome, email, cpf;
+  private String senha;
+  private Integer periodo;
 
   @ManyToOne
   private TipoPessoa tipo;
