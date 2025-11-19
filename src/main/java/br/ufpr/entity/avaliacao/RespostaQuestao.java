@@ -2,7 +2,6 @@ package br.ufpr.entity.avaliacao;
 
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +27,7 @@ public class RespostaQuestao {
   private String respDiscursiva;
   private Boolean correcaoDiscursiva;
 
-  @ManyToMany(cascade = CascadeType.ALL)
+  @ManyToMany
   private List<Alternativa> respObjetiva;
 
   @ManyToOne
@@ -46,6 +45,11 @@ public class RespostaQuestao {
       if (!alternativa.isCorreta())
         return false;
     return true;
+  }
+
+  // para uso no jsp
+  public boolean getCorreta() {
+    return isCorreta();
   }
 
 }
