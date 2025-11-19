@@ -15,7 +15,7 @@
 
   <h1>Nova Avaliação</h1>
 
-  <form action="avaliacao-create" method="post">
+  <form action="nova-avaliacao" method="post">
 
     <div>
       <label>

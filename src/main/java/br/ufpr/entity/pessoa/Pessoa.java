@@ -1,5 +1,7 @@
 package br.ufpr.entity.pessoa;
 
+import java.util.List;
+
 import br.ufpr.entity.curso.Curso;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,18 +19,18 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Pessoa {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-	private String nome, email, cpf, matricula;
+  private String nome, email, cpf, matricula;
 
-	private Integer período;
+  private Integer período;
 
-	@ManyToOne
-	private TipoPessoa tipo;
+  @ManyToOne
+  private TipoPessoa tipo;
 
-	@ManyToMany
-	private Curso curso;
+  @ManyToMany
+  private List<Curso> curso;
 
 }

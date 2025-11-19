@@ -20,6 +20,14 @@ public class NovaAvaliacaoServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    try {
+      Class<?> c = Class.forName("jakarta.persistence.PersistenceUnitTransactionType");
+      System.out.println("Class loaded by: " + c.getClassLoader());
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+    EntityManager em = Persistence.createEntityManagerFactory("persistence").createEntityManager();
+    em.find(Avaliacao.class, 1);
     req.getRequestDispatcher("/WEB-INF/novaAvaliacao.jsp").forward(req, resp);
   }
 
@@ -70,13 +78,13 @@ public class NovaAvaliacaoServlet extends HttpServlet {
     avaliacao.setQuestoes(questoes);
 
     // Hibernate Persist
-    EntityManager em = Persistence.createEntityManagerFactory("avaliacao").createEntityManager();
+    EntityManager em = Persistence.createEntityManagerFactory("persistence").createEntityManager();
     var transaction = em.getTransaction();
     transaction.begin();
     em.persist(avaliacao);
     transaction.commit();
 
-    resp.sendRedirect("avaliacao-list");
+    resp.sendRedirect("lista-avaliacoes");
   }
 
 }
