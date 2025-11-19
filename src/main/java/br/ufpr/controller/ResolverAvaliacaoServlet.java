@@ -12,6 +12,7 @@ import br.ufpr.entity.avaliacao.RespostaQuestao;
 import br.ufpr.entity.pessoa.Pessoa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -30,10 +31,36 @@ public class ResolverAvaliacaoServlet extends HttpServlet {
 
     EntityManager em = Persistence.createEntityManagerFactory("persistence").createEntityManager();
     Avaliacao avaliacao = em.find(Avaliacao.class, id);
+    if (avaliacao == null) {
+      resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
+      return;
+    }
+
+    // login
+    HttpSession session = req.getSession(false);
+    if (session == null || session.getAttribute("usuarioLogado") == null) {
+      resp.sendRedirect("login");
+      return;
+    }
+    Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+
+    // verifica se já respondeu uma vez
+    TypedQuery<Resposta> query = em.createQuery(
+        "select r from Resposta r where r.avaliacao.id = :avaliacaoId and r.pessoa.id = :usuarioId", Resposta.class);
+    query.setParameter("avaliacaoId", avaliacao.getId());
+    query.setParameter("usuarioId", usuario.getId());
+
+    Resposta respostaExistente = query.getResultStream().findFirst().orElse(null);
+    if (respostaExistente != null) {
+      req.setAttribute("msg", "avaliação já respondida");
+      resp.sendRedirect("minhas-respostas");
+      em.close();
+      return;
+    }
 
     req.setAttribute("avaliacao", avaliacao);
     req.getRequestDispatcher("/WEB-INF/resolverAvaliacao.jsp").forward(req, resp);
-
+    em.close();
   }
 
   @Override
@@ -54,6 +81,8 @@ public class ResolverAvaliacaoServlet extends HttpServlet {
       resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
       return;
     }
+
+    // cria a resposta
     Resposta resposta = Resposta.builder().avaliacao(avaliacao).pessoa(usuario).build();
 
     List<RespostaQuestao> respostaQuestoes = new ArrayList<>();
@@ -106,6 +135,7 @@ public class ResolverAvaliacaoServlet extends HttpServlet {
 
     resp.sendRedirect("lista-avaliacoes");
 
+    em.close();
   }
 
 }
