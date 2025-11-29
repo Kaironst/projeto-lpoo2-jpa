@@ -1,98 +1,76 @@
 package br.ufpr.controller;
 
-import java.io.IOException;
-import java.util.List;
-
+import br.ufpr.dao.CursoDAO;
 import br.ufpr.entity.curso.Curso;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @WebServlet("/crud/cursos")
 public class CursoServlet extends HttpServlet {
 
-    private static final EntityManagerFactory EMF =
-            Persistence.createEntityManagerFactory("persistence");
+    private final CursoDAO cursoDAO = new CursoDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        EntityManager em = EMF.createEntityManager();
-        try {
-            String acao = req.getParameter("acao");
-            String idStr = req.getParameter("id");
+        String acao = req.getParameter("acao");
+        String idStr = req.getParameter("id");
 
-            if ("editar".equals(acao) && idStr != null) {
-                long id = Long.parseLong(idStr);
-                Curso curso = em.find(Curso.class, id);
-                req.setAttribute("cursoEditar", curso);
+        if ("editar".equals(acao) && idStr != null) {
+            long id = Long.parseLong(idStr);
+            Curso curso = cursoDAO.buscarPorId(id);
+            req.setAttribute("cursoEditar", curso);
 
-            } else if ("deletar".equals(acao) && idStr != null) {
-                long id = Long.parseLong(idStr);
-                Curso curso = em.find(Curso.class, id);
+        } else if ("deletar".equals(acao) && idStr != null) {
 
-                if (curso != null) {
-                    var tx = em.getTransaction();
-                    tx.begin();
-                    em.remove(curso);
-                    tx.commit();
-                }
+            long id = Long.parseLong(idStr);
+            Curso curso = cursoDAO.buscarPorId(id);
 
-                resp.sendRedirect(req.getContextPath() + "/crud/cursos");
-                return;
+            if (curso != null) {
+                cursoDAO.deletar(curso);
             }
 
-            List<Curso> cursos = em.createQuery("SELECT c FROM Curso c", Curso.class).getResultList();
-            req.setAttribute("cursos", cursos);
-
-            req.getRequestDispatcher("/WEB-INF/crud/curso.jsp").forward(req, resp);
-
-        } finally {
-            em.close();
+            resp.sendRedirect(req.getContextPath() + "/crud/cursos");
+            return;
         }
+
+        req.setAttribute("cursos", cursoDAO.listarTodos());
+        req.getRequestDispatcher("/WEB-INF/crud/curso.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        EntityManager em = EMF.createEntityManager();
-        try {
-            String idStr = req.getParameter("id");
-            String nome = req.getParameter("nome");
-            int numPeriodos = Integer.parseInt(req.getParameter("numPeriodos"));
+        String idStr = req.getParameter("id");
+        String nome = req.getParameter("nome");
+        int numPeriodos = Integer.parseInt(req.getParameter("numPeriodos"));
 
-            var tx = em.getTransaction();
-            tx.begin();
+        if (idStr != null && !idStr.isEmpty()) {
 
-            if (idStr != null && !idStr.isEmpty()) {
+            long id = Long.parseLong(idStr);
+            Curso curso = cursoDAO.buscarPorId(id);
 
-                long id = Long.parseLong(idStr);
-                Curso curso = em.find(Curso.class, id);
-                if (curso != null) {
-                    curso.setNome(nome);
-                    curso.setNumPeriodos(numPeriodos);
-                    em.merge(curso);
-                }
-            } else {
-
-                Curso curso = new Curso();
+            if (curso != null) {
                 curso.setNome(nome);
                 curso.setNumPeriodos(numPeriodos);
-                em.persist(curso);
+                cursoDAO.atualizar(curso);
             }
 
-            tx.commit();
-            resp.sendRedirect(req.getContextPath() + "/crud/cursos");
+        } else {
 
-        } finally {
-            em.close();
+            Curso curso = new Curso();
+            curso.setNome(nome);
+            curso.setNumPeriodos(numPeriodos);
+            cursoDAO.salvar(curso);
         }
+
+        resp.sendRedirect(req.getContextPath() + "/crud/cursos");
     }
 }

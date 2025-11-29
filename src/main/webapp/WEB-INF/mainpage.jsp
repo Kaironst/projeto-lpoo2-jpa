@@ -4,7 +4,7 @@
 <body>
     <h2>User List</h2>
     <table border="1">
-        <tr><th>ID</th><th>Name</th><th>Email</th><th>CPF</th><th>Periodo</th><th>Tipo</th><th>SENHA(REMOVER ANTES DA APRESENTACAO)</th></tr>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>CPF</th><th>Periodo</th><th>Tipo</th></tr>
         <c:forEach var="u" items="${users}">
             <tr>
                 <td>${u.id}</td>
@@ -13,7 +13,6 @@
                 <td>${u.cpf}</td>
                 <td>${u.periodo}</td>
                 <td>${u.tipo.nome}</td>
-                <td>${u.senha}</td>
             </tr>
         </c:forEach>
     </table>

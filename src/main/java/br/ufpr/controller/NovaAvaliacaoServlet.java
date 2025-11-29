@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.ufpr.dao.AvaliacaoDAO;
 import br.ufpr.entity.avaliacao.Alternativa;
 import br.ufpr.entity.avaliacao.Avaliacao;
 import br.ufpr.entity.avaliacao.Questao;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,20 +17,15 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/nova-avaliacao")
 public class NovaAvaliacaoServlet extends HttpServlet {
-    private static final EntityManagerFactory EMF =
-            Persistence.createEntityManagerFactory("persistence");
+
+    private final AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        EntityManager em = EMF.createEntityManager();
-        try {
-            em.find(Avaliacao.class, 1);
-            req.getRequestDispatcher("/WEB-INF/novaAvaliacao.jsp").forward(req, resp);
-        } finally {
-            em.close();
-        }
+        // Apenas encaminha para a JSP — não deve abrir EntityManager!
+        req.getRequestDispatcher("/WEB-INF/novaAvaliacao.jsp").forward(req, resp);
     }
 
     @Override
@@ -56,6 +50,7 @@ public class NovaAvaliacaoServlet extends HttpServlet {
 
             List<Alternativa> alternativas = new ArrayList<>();
             int a = 0;
+
             while (req.getParameter("questao[" + q + "].alternativa[" + a + "].enunciado") != null) {
 
                 Alternativa alt = Alternativa.builder()
@@ -76,17 +71,10 @@ public class NovaAvaliacaoServlet extends HttpServlet {
 
         avaliacao.setQuestoes(questoes);
 
-        EntityManager em = EMF.createEntityManager();
         try {
-            var transaction = em.getTransaction();
-            transaction.begin();
-            em.persist(avaliacao);
-            transaction.commit();
+            avaliacaoDAO.salvar(avaliacao);
         } catch (Exception e) {
-            em.getTransaction().rollback();
             throw new ServletException("Erro ao salvar avaliação", e);
-        } finally {
-            em.close();
         }
 
         resp.sendRedirect("lista-avaliacoes");

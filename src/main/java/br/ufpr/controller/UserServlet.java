@@ -1,13 +1,12 @@
 package br.ufpr.controller;
 
 import java.io.IOException;
-import java.util.List;
 
+import br.ufpr.dao.PessoaDAO;
+import br.ufpr.dao.TipoPessoaDAO;
 import br.ufpr.entity.pessoa.Pessoa;
 import br.ufpr.entity.pessoa.TipoPessoa;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,67 +15,45 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
-    private static final EntityManagerFactory EMF =
-            Persistence.createEntityManagerFactory("persistence");
-    
+
+    private final PessoaDAO pessoaDAO = new PessoaDAO();
+    private final TipoPessoaDAO tipoPessoaDAO = new TipoPessoaDAO();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        
-        EntityManager em = EMF.createEntityManager();
-        try {
-            List<Pessoa> users = em.createQuery("SELECT p FROM Pessoa p", Pessoa.class).getResultList();
-            List<TipoPessoa> tipos = em.createQuery("SELECT t FROM TipoPessoa t", TipoPessoa.class).getResultList();
 
-            // Caso não exista nenhum tipo, cria os padrões
-            if (tipos.isEmpty()) {
-                em.getTransaction().begin();
-                em.persist(new TipoPessoa("aluno", false, true));
-                em.persist(new TipoPessoa("professor", true, true));
-                em.persist(new TipoPessoa("coordenador", true, true));
-                em.persist(new TipoPessoa("administrador", true, true));
-                em.getTransaction().commit();
+        tipoPessoaDAO.createDefaultTypesIfEmpty();
 
-                tipos = em.createQuery("SELECT t FROM TipoPessoa t", TipoPessoa.class).getResultList();
-            }
-            
-            req.setAttribute("users", users);
-            req.setAttribute("tipos", tipos);
-            req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
-        } finally {
-            em.close();
-        }
+        req.setAttribute("users", pessoaDAO.findAll());
+        req.setAttribute("tipos", tipoPessoaDAO.findAll());
+
+        req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, ServletException {
+            throws IOException {
 
-        EntityManager em = EMF.createEntityManager();
+        Pessoa pessoa = new Pessoa();
+        pessoa.setNome(req.getParameter("nome"));
+        pessoa.setEmail(req.getParameter("email"));
+        pessoa.setCpf(req.getParameter("cpf"));
+
         try {
-            Pessoa pessoa = new Pessoa();
-            pessoa.setNome(req.getParameter("nome"));
-            pessoa.setEmail(req.getParameter("email"));
-            pessoa.setCpf(req.getParameter("cpf"));
-            try {
-                pessoa.setPeriodo(Integer.valueOf(req.getParameter("periodo")));
-            } catch (Exception e) {
-                pessoa.setPeriodo(1); // default pra 1
-            }
-            
-            long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
-            TipoPessoa tipo = em.find(TipoPessoa.class, tipoId);
-            pessoa.setTipo(tipo);
-            pessoa.setSenha(req.getParameter("senha"));
-
-            var tx = em.getTransaction();
-            tx.begin();
-            em.persist(pessoa);
-            tx.commit();
-
-            resp.sendRedirect("users");
-        } finally {
-            em.close();
+            pessoa.setPeriodo(Integer.valueOf(req.getParameter("periodo")));
+        } catch (Exception e) {
+            pessoa.setPeriodo(1);
         }
+
+        long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
+        TipoPessoa tipo = tipoPessoaDAO.findById(tipoId);
+        pessoa.setTipo(tipo);
+
+        pessoa.setSenha(req.getParameter("senha"));
+
+        pessoaDAO.save(pessoa);
+
+        resp.sendRedirect("users");
     }
 }

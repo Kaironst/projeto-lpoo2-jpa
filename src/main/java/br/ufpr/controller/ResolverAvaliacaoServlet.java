@@ -1,19 +1,12 @@
 package br.ufpr.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import br.ufpr.dao.AvaliacaoDAO;
+import br.ufpr.dao.RespostaDAO;
+import br.ufpr.dao.AlternativaDAO;
 
-import br.ufpr.entity.avaliacao.Alternativa;
-import br.ufpr.entity.avaliacao.Avaliacao;
-import br.ufpr.entity.avaliacao.Questao;
-import br.ufpr.entity.avaliacao.Resposta;
-import br.ufpr.entity.avaliacao.RespostaQuestao;
+import br.ufpr.entity.avaliacao.*;
 import br.ufpr.entity.pessoa.Pessoa;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.TypedQuery;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,10 +14,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 @WebServlet("/resolver-avaliacao")
 public class ResolverAvaliacaoServlet extends HttpServlet {
-    private static final EntityManagerFactory EMF =
-            Persistence.createEntityManagerFactory("persistence");
+
+    private final AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
+    private final RespostaDAO respostaDAO = new RespostaDAO();
+    private final AlternativaDAO alternativaDAO = new AlternativaDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -38,40 +37,31 @@ public class ResolverAvaliacaoServlet extends HttpServlet {
 
         long id = Long.parseLong(idParam);
 
-        EntityManager em = EMF.createEntityManager();
-        try {
-            Avaliacao avaliacao = em.find(Avaliacao.class, id);
-            if (avaliacao == null) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
-                return;
-            }
-
-            // Verifica login
-            HttpSession session = req.getSession(false);
-            if (session == null || session.getAttribute("usuarioLogado") == null) {
-                resp.sendRedirect("login");
-                return;
-            }
-            Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
-
-            // Verifica se já respondeu
-            TypedQuery<Resposta> query = em.createQuery(
-                    "select r from Resposta r where r.avaliacao.id = :avaliacaoId and r.pessoa.id = :usuarioId", Resposta.class);
-            query.setParameter("avaliacaoId", avaliacao.getId());
-            query.setParameter("usuarioId", usuario.getId());
-            Resposta respostaExistente = query.getResultStream().findFirst().orElse(null);
-
-            if (respostaExistente != null) {
-                resp.sendRedirect("minhas-respostas");
-                return;
-            }
-
-            req.setAttribute("avaliacao", avaliacao);
-            req.getRequestDispatcher("/WEB-INF/resolverAvaliacao.jsp").forward(req, resp);
-
-        } finally {
-            em.close(); // garante fechamento da conexão
+        Avaliacao avaliacao = avaliacaoDAO.buscarPorId(id);
+        if (avaliacao == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
+            return;
         }
+
+        // Verifica login
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            resp.sendRedirect("login");
+            return;
+        }
+
+        Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+
+        Resposta respostaExistente =
+                respostaDAO.buscarRespostaPorAvaliacaoEUsuario(avaliacao.getId(), usuario.getId());
+
+        if (respostaExistente != null) {
+            resp.sendRedirect("minhas-respostas");
+            return;
+        }
+
+        req.setAttribute("avaliacao", avaliacao);
+        req.getRequestDispatcher("/WEB-INF/resolverAvaliacao.jsp").forward(req, resp);
     }
 
     @Override
@@ -86,63 +76,61 @@ public class ResolverAvaliacaoServlet extends HttpServlet {
         Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
 
         long avaliacaoId = Long.parseLong(req.getParameter("avaliacaoId"));
-        EntityManager em = EMF.createEntityManager();
-        try {
-            Avaliacao avaliacao = em.find(Avaliacao.class, avaliacaoId);
-            if (avaliacao == null) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
-                return;
-            }
+        Avaliacao avaliacao = avaliacaoDAO.buscarPorId(avaliacaoId);
 
-            Resposta resposta = Resposta.builder().avaliacao(avaliacao).pessoa(usuario).build();
-            List<RespostaQuestao> respostaQuestoes = new ArrayList<>();
+        if (avaliacao == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
+            return;
+        }
 
-            em.getTransaction().begin();
+        Resposta resposta = Resposta.builder()
+                .avaliacao(avaliacao)
+                .pessoa(usuario)
+                .build();
 
-            for (Questao questao : avaliacao.getQuestoes()) {
-                RespostaQuestao respostaQuestao = new RespostaQuestao();
-                respostaQuestao.setQuestao(questao);
-                respostaQuestao.setResposta(resposta);
+        List<RespostaQuestao> respostaQuestoes = new ArrayList<>();
 
-                String paramName = "resposta[" + questao.getId() + "]";
-                String[] respostasParam = req.getParameterValues(paramName);
+        for (Questao questao : avaliacao.getQuestoes()) {
 
-                if (questao.getTipo() == Questao.Tipo.DISCURSIVA) {
-                    if (respostasParam != null && respostasParam.length > 0) {
-                        respostaQuestao.setRespDiscursiva(respostasParam[0]);
-                        respostaQuestao.setCorrecaoDiscursiva(null);
-                    }
-                } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_UNICA) {
-                    if (respostasParam != null && respostasParam.length > 0) {
-                        long altId = Long.parseLong(respostasParam[0]);
-                        Alternativa alt = em.find(Alternativa.class, altId);
-                        respostaQuestao.setRespObjetiva(List.of(alt));
-                    }
-                } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_MULTIPLA) {
-                    if (respostasParam != null && respostasParam.length > 0) {
-                        List<Alternativa> alternativasSelecionadas = new ArrayList<>();
-                        for (String altIdStr : respostasParam) {
-                            long altId = Long.parseLong(altIdStr);
-                            Alternativa alt = em.find(Alternativa.class, altId);
-                            if (alt != null) {
-                                alternativasSelecionadas.add(alt);
-                            }
-                        }
-                        respostaQuestao.setRespObjetiva(alternativasSelecionadas);
-                    }
+            RespostaQuestao rq = new RespostaQuestao();
+            rq.setQuestao(questao);
+            rq.setResposta(resposta);
+
+            String paramName = "resposta[" + questao.getId() + "]";
+            String[] valores = req.getParameterValues(paramName);
+
+            if (questao.getTipo() == Questao.Tipo.DISCURSIVA) {
+                if (valores != null && valores.length > 0) {
+                    rq.setRespDiscursiva(valores[0]);
+                    rq.setCorrecaoDiscursiva(null);
                 }
 
-                respostaQuestoes.add(respostaQuestao);
+            } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_UNICA) {
+                if (valores != null && valores.length > 0) {
+                    long altId = Long.parseLong(valores[0]);
+                    Alternativa alt = alternativaDAO.buscarPorId(altId);
+                    rq.setRespObjetiva(List.of(alt));
+                }
+
+            } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_MULTIPLA) {
+                if (valores != null && valores.length > 0) {
+                    List<Alternativa> selecionadas = new ArrayList<>();
+                    for (String altStr : valores) {
+                        long altId = Long.parseLong(altStr);
+                        Alternativa alt = alternativaDAO.buscarPorId(altId);
+                        if (alt != null) selecionadas.add(alt);
+                    }
+                    rq.setRespObjetiva(selecionadas);
+                }
             }
 
-            resposta.setRespostaQuestoes(respostaQuestoes);
-            em.persist(resposta);
-            em.getTransaction().commit();
-
-            resp.sendRedirect("lista-avaliacoes");
-
-        } finally {
-            em.close();
+            respostaQuestoes.add(rq);
         }
+
+        resposta.setRespostaQuestoes(respostaQuestoes);
+
+        respostaDAO.salvar(resposta);
+
+        resp.sendRedirect("lista-avaliacoes");
     }
 }
