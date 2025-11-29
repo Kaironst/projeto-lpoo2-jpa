@@ -6,7 +6,8 @@ import br.ufpr.dao.PessoaDAO;
 import br.ufpr.dao.TipoPessoaDAO;
 import br.ufpr.entity.pessoa.Pessoa;
 import br.ufpr.entity.pessoa.TipoPessoa;
-
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,44 +17,55 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
 
-    private final PessoaDAO pessoaDAO = new PessoaDAO();
-    private final TipoPessoaDAO tipoPessoaDAO = new TipoPessoaDAO();
+  private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("persistence");
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
 
-        tipoPessoaDAO.createDefaultTypesIfEmpty();
+    try (var em = EMF.createEntityManager()) {
 
-        req.setAttribute("users", pessoaDAO.findAll());
-        req.setAttribute("tipos", tipoPessoaDAO.findAll());
+      var tipoPessoaDAO = new TipoPessoaDAO(em);
+      var pessoaDAO = new PessoaDAO(em);
 
-        req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
+      tipoPessoaDAO.createDefaultTypesIfEmpty();
+
+      req.setAttribute("users", pessoaDAO.findAll());
+      req.setAttribute("tipos", tipoPessoaDAO.findAll());
+
+      req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
     }
+  }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException {
 
-        Pessoa pessoa = new Pessoa();
-        pessoa.setNome(req.getParameter("nome"));
-        pessoa.setEmail(req.getParameter("email"));
-        pessoa.setCpf(req.getParameter("cpf"));
+    try (var em = EMF.createEntityManager()) {
 
-        try {
-            pessoa.setPeriodo(Integer.valueOf(req.getParameter("periodo")));
-        } catch (Exception e) {
-            pessoa.setPeriodo(1);
-        }
+      var tipoPessoaDAO = new TipoPessoaDAO(em);
+      var pessoaDAO = new PessoaDAO(em);
 
-        long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
-        TipoPessoa tipo = tipoPessoaDAO.findById(tipoId);
-        pessoa.setTipo(tipo);
+      Pessoa pessoa = new Pessoa();
+      pessoa.setNome(req.getParameter("nome"));
+      pessoa.setEmail(req.getParameter("email"));
+      pessoa.setCpf(req.getParameter("cpf"));
 
-        pessoa.setSenha(req.getParameter("senha"));
+      try {
+        pessoa.setPeriodo(Integer.valueOf(req.getParameter("periodo")));
+      } catch (Exception e) {
+        pessoa.setPeriodo(1);
+      }
 
-        pessoaDAO.save(pessoa);
+      long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
+      TipoPessoa tipo = tipoPessoaDAO.findById(tipoId);
+      pessoa.setTipo(tipo);
 
-        resp.sendRedirect("users");
+      pessoa.setSenha(req.getParameter("senha"));
+
+      pessoaDAO.save(pessoa);
+
+      resp.sendRedirect("users");
     }
+  }
 }

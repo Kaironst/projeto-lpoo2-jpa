@@ -6,7 +6,8 @@ import br.ufpr.dao.AlternativaDAO;
 
 import br.ufpr.entity.avaliacao.*;
 import br.ufpr.entity.pessoa.Pessoa;
-
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,116 +22,127 @@ import java.util.List;
 @WebServlet("/resolver-avaliacao")
 public class ResolverAvaliacaoServlet extends HttpServlet {
 
-    private final AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
-    private final RespostaDAO respostaDAO = new RespostaDAO();
-    private final AlternativaDAO alternativaDAO = new AlternativaDAO();
+  private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("persistence");
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
 
-        String idParam = req.getParameter("id");
-        if (idParam == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID da avaliação não informado");
-            return;
-        }
+    try (var em = EMF.createEntityManager()) {
 
-        long id = Long.parseLong(idParam);
+      var avaliacaoDAO = new AvaliacaoDAO(em);
+      var respostaDAO = new RespostaDAO(em);
 
-        Avaliacao avaliacao = avaliacaoDAO.buscarPorId(id);
-        if (avaliacao == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
-            return;
-        }
+      String idParam = req.getParameter("id");
+      if (idParam == null) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID da avaliação não informado");
+        return;
+      }
 
-        // Verifica login
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            resp.sendRedirect("login");
-            return;
-        }
+      long id = Long.parseLong(idParam);
 
-        Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+      Avaliacao avaliacao = avaliacaoDAO.buscarPorId(id);
+      if (avaliacao == null) {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
+        return;
+      }
 
-        Resposta respostaExistente =
-                respostaDAO.buscarRespostaPorAvaliacaoEUsuario(avaliacao.getId(), usuario.getId());
+      // Verifica login
+      HttpSession session = req.getSession(false);
+      if (session == null || session.getAttribute("usuarioLogado") == null) {
+        resp.sendRedirect("login");
+        return;
+      }
 
-        if (respostaExistente != null) {
-            resp.sendRedirect("minhas-respostas");
-            return;
-        }
+      Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
 
-        req.setAttribute("avaliacao", avaliacao);
-        req.getRequestDispatcher("/WEB-INF/resolverAvaliacao.jsp").forward(req, resp);
+      Resposta respostaExistente = respostaDAO.buscarRespostaPorAvaliacaoEUsuario(avaliacao.getId(), usuario.getId());
+
+      if (respostaExistente != null) {
+        resp.sendRedirect("minhas-respostas");
+        return;
+      }
+
+      req.setAttribute("avaliacao", avaliacao);
+      req.getRequestDispatcher("/WEB-INF/resolverAvaliacao.jsp").forward(req, resp);
     }
+  }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
 
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            resp.sendRedirect("login");
-            return;
-        }
-        Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+    try (var em = EMF.createEntityManager()) {
 
-        long avaliacaoId = Long.parseLong(req.getParameter("avaliacaoId"));
-        Avaliacao avaliacao = avaliacaoDAO.buscarPorId(avaliacaoId);
+      var respostaDAO = new RespostaDAO(em);
+      var avaliacaoDAO = new AvaliacaoDAO(em);
+      var alternativaDAO = new AlternativaDAO(em);
 
-        if (avaliacao == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
-            return;
-        }
+      HttpSession session = req.getSession(false);
+      if (session == null || session.getAttribute("usuarioLogado") == null) {
+        resp.sendRedirect("login");
+        return;
+      }
+      Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
 
-        Resposta resposta = Resposta.builder()
-                .avaliacao(avaliacao)
-                .pessoa(usuario)
-                .build();
+      long avaliacaoId = Long.parseLong(req.getParameter("avaliacaoId"));
+      Avaliacao avaliacao = avaliacaoDAO.buscarPorId(avaliacaoId);
 
-        List<RespostaQuestao> respostaQuestoes = new ArrayList<>();
+      if (avaliacao == null) {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Avaliação não encontrada");
+        return;
+      }
 
-        for (Questao questao : avaliacao.getQuestoes()) {
+      Resposta resposta = Resposta.builder()
+          .avaliacao(avaliacao)
+          .pessoa(usuario)
+          .build();
 
-            RespostaQuestao rq = new RespostaQuestao();
-            rq.setQuestao(questao);
-            rq.setResposta(resposta);
+      List<RespostaQuestao> respostaQuestoes = new ArrayList<>();
 
-            String paramName = "resposta[" + questao.getId() + "]";
-            String[] valores = req.getParameterValues(paramName);
+      for (Questao questao : avaliacao.getQuestoes()) {
 
-            if (questao.getTipo() == Questao.Tipo.DISCURSIVA) {
-                if (valores != null && valores.length > 0) {
-                    rq.setRespDiscursiva(valores[0]);
-                    rq.setCorrecaoDiscursiva(null);
-                }
+        RespostaQuestao rq = new RespostaQuestao();
+        rq.setQuestao(questao);
+        rq.setResposta(resposta);
 
-            } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_UNICA) {
-                if (valores != null && valores.length > 0) {
-                    long altId = Long.parseLong(valores[0]);
-                    Alternativa alt = alternativaDAO.buscarPorId(altId);
-                    rq.setRespObjetiva(List.of(alt));
-                }
+        String paramName = "resposta[" + questao.getId() + "]";
+        String[] valores = req.getParameterValues(paramName);
 
-            } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_MULTIPLA) {
-                if (valores != null && valores.length > 0) {
-                    List<Alternativa> selecionadas = new ArrayList<>();
-                    for (String altStr : valores) {
-                        long altId = Long.parseLong(altStr);
-                        Alternativa alt = alternativaDAO.buscarPorId(altId);
-                        if (alt != null) selecionadas.add(alt);
-                    }
-                    rq.setRespObjetiva(selecionadas);
-                }
+        if (questao.getTipo() == Questao.Tipo.DISCURSIVA) {
+          if (valores != null && valores.length > 0) {
+            rq.setRespDiscursiva(valores[0]);
+            rq.setCorrecaoDiscursiva(null);
+          }
+
+        } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_UNICA) {
+          if (valores != null && valores.length > 0) {
+            long altId = Long.parseLong(valores[0]);
+            Alternativa alt = alternativaDAO.buscarPorId(altId);
+            rq.setRespObjetiva(List.of(alt));
+          }
+
+        } else if (questao.getTipo() == Questao.Tipo.OBJETIVA_MULTIPLA) {
+          if (valores != null && valores.length > 0) {
+            List<Alternativa> selecionadas = new ArrayList<>();
+            for (String altStr : valores) {
+              long altId = Long.parseLong(altStr);
+              Alternativa alt = alternativaDAO.buscarPorId(altId);
+              if (alt != null)
+                selecionadas.add(alt);
             }
-
-            respostaQuestoes.add(rq);
+            rq.setRespObjetiva(selecionadas);
+          }
         }
 
-        resposta.setRespostaQuestoes(respostaQuestoes);
+        respostaQuestoes.add(rq);
+      }
 
-        respostaDAO.salvar(resposta);
+      resposta.setRespostaQuestoes(respostaQuestoes);
 
-        resp.sendRedirect("lista-avaliacoes");
+      respostaDAO.salvar(resposta);
+
+      resp.sendRedirect("lista-avaliacoes");
     }
+  }
 }

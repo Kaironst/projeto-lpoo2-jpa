@@ -33,7 +33,7 @@
                 <c:when test="${av.anon}">Sim</c:when>
                 <c:otherwise>Não</c:otherwise>
               </c:choose></td>
-          <td><c:out value="${fn:length(av.questoes)}"/></td>
+          <td><c:out value="${av.questoes != null ? fn:length(av.questoes) : 0 }"/></td>
           <td>
             <form action="resolver-avaliacao" method="get" style="display:inline;">
               <input type="hidden" name="id" value="${av.id}" />

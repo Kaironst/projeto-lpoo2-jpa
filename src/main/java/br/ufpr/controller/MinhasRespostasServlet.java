@@ -2,7 +2,8 @@ package br.ufpr.controller;
 
 import br.ufpr.dao.RespostaDAO;
 import br.ufpr.entity.pessoa.Pessoa;
-
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,25 +16,28 @@ import java.io.IOException;
 @WebServlet("/minhas-respostas")
 public class MinhasRespostasServlet extends HttpServlet {
 
-    private final RespostaDAO respostaDAO = new RespostaDAO();
+  private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("persistence");
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
 
-        HttpSession session = req.getSession(false);
+    try (var em = EMF.createEntityManager()) {
 
+      var respostaDAO = new RespostaDAO(em);
 
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
+      HttpSession session = req.getSession(false);
+      if (session == null || session.getAttribute("usuarioLogado") == null) {
+        resp.sendRedirect(req.getContextPath() + "/login");
+        return;
+      }
 
-        Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+      Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
 
+      req.setAttribute("respostas", respostaDAO.listarPorPessoa(usuario.getId()));
 
-        req.setAttribute("respostas", respostaDAO.listarPorPessoa(usuario.getId()));
-
-        req.getRequestDispatcher("/WEB-INF/minhasRespostas.jsp").forward(req, resp);
+      req.getRequestDispatcher("/WEB-INF/minhasRespostas.jsp").forward(req, resp);
     }
+  }
+
 }

@@ -6,85 +6,54 @@ package br.ufpr.dao;
 
 import br.ufpr.entity.pessoa.Pessoa;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
+import lombok.AllArgsConstructor;
+
 import java.util.List;
 
+@AllArgsConstructor
 public class PessoaDAO {
 
-    private static final EntityManagerFactory EMF =
-            Persistence.createEntityManagerFactory("persistence");
+  private final EntityManager em;
 
-    public Pessoa buscarPorEmailSenha(String email, String senha) {
-        EntityManager em = EMF.createEntityManager();
-        try {
-            TypedQuery<Pessoa> query = em.createQuery(
-                    "SELECT p FROM Pessoa p WHERE p.email = :email AND p.senha = :senha",
-                    Pessoa.class
-            );
-            query.setParameter("email", email);
-            query.setParameter("senha", senha);
+  public Pessoa buscarPorEmailSenha(String email, String senha) {
+    TypedQuery<Pessoa> query = em.createQuery(
+        "SELECT p FROM Pessoa p WHERE p.email = :email AND p.senha = :senha",
+        Pessoa.class);
+    query.setParameter("email", email);
+    query.setParameter("senha", senha);
 
-            return query.getResultStream().findFirst().orElse(null);
-        } finally {
-            em.close();
-        }
-    }
-    
-    public Pessoa findById(long id) {
-        EntityManager em = EMF.createEntityManager();
-        try {
-            return em.find(Pessoa.class, id);
-        } finally {
-            em.close();
-        }
-    }
+    return query.getResultStream().findFirst().orElse(null);
+  }
 
-    public List<Pessoa> findAll() {
-        EntityManager em = EMF.createEntityManager();
-        try {
-            return em.createQuery("SELECT p FROM Pessoa p", Pessoa.class)
-                     .getResultList();
-        } finally {
-            em.close();
-        }
-    }
+  public Pessoa findById(long id) {
+    return em.find(Pessoa.class, id);
+  }
 
-    public void save(Pessoa pessoa) {
-        EntityManager em = EMF.createEntityManager();
-        try {
-            var tx = em.getTransaction();
-            tx.begin();
-            em.persist(pessoa);
-            tx.commit();
-        } finally {
-            em.close();
-        }
-    }
+  public List<Pessoa> findAll() {
+    return em.createQuery("SELECT p FROM Pessoa p", Pessoa.class)
+        .getResultList();
+  }
 
-    public void update(Pessoa pessoa) {
-        EntityManager em = EMF.createEntityManager();
-        try {
-            var tx = em.getTransaction();
-            tx.begin();
-            em.merge(pessoa);
-            tx.commit();
-        } finally {
-            em.close();
-        }
-    }
+  public void save(Pessoa pessoa) {
+    var tx = em.getTransaction();
+    tx.begin();
+    em.persist(pessoa);
+    tx.commit();
+  }
 
-    public void delete(Pessoa pessoa) {
-        EntityManager em = EMF.createEntityManager();
-        try {
-            var tx = em.getTransaction();
-            tx.begin();
-            Pessoa managed = em.merge(pessoa);
-            em.remove(managed);
-            tx.commit();
-        } finally {
-            em.close();
-        }
-    }
+  public void update(Pessoa pessoa) {
+    var tx = em.getTransaction();
+    tx.begin();
+    em.merge(pessoa);
+    tx.commit();
+  }
+
+  public void delete(Pessoa pessoa) {
+    var tx = em.getTransaction();
+    tx.begin();
+    Pessoa managed = em.merge(pessoa);
+    em.remove(managed);
+    tx.commit();
+  }
 }
