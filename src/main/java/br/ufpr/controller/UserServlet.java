@@ -33,7 +33,7 @@ public class UserServlet extends HttpServlet {
       req.setAttribute("users", pessoaDAO.findAll());
       req.setAttribute("tipos", tipoPessoaDAO.findAll());
 
-      req.getRequestDispatcher("/WEB-INF/mainpage.jsp").forward(req, resp);
+      req.getRequestDispatcher("/WEB-INF/users.jsp").forward(req, resp);
     }
   }
 

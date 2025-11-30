@@ -1,38 +1,21 @@
-<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<!DOCTYPE html>
 <html>
-<head><title>Users</title></head>
-<body>
-    <h2>User List</h2>
-    <table border="1">
-        <tr><th>ID</th><th>Name</th><th>Email</th><th>CPF</th><th>Periodo</th><th>Tipo</th></tr>
-        <c:forEach var="u" items="${users}">
-            <tr>
-                <td>${u.id}</td>
-                <td>${u.nome}</td>
-                <td>${u.email}</td>
-                <td>${u.cpf}</td>
-                <td>${u.periodo}</td>
-                <td>${u.tipo.nome}</td>
-            </tr>
-        </c:forEach>
-    </table>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lista de Avaliações</title>
+  </head>
+  <body>
 
-    <h3>Add new user</h3>
-    <form method="post" action="users">
-        Nome: <input type="text" name="nome"/><br/>
-        Email: <input type="text" name="email"/><br/>
-        CPF: <input type="number" name="cpf"/><br/>
-        Periodo: <input type="number" name="periodo"/><br/>
-        
-        Tipo:
-        <select name="tipoPessoa">
-            <c:forEach var="tp" items="${tipos}">
-                <option value="${tp.id}">${tp.nome}</option>
-            </c:forEach>
-        </select><br/>
-        
-        Senha: <input type="password" name="senha"/><br/>
-        <input type="submit" value="Save"/>
-    </form>
-</body>
+    <h3>Links para todas as páginas necessárias</h1>
+
+    <p><a href="/projeto-1.0-SNAPSHOT/login">login</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/users">addUsuarios</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/lista-avaliacoes">lista de avaliações</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/minhas-respostas">minhas respostas</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/nova-avaliacao">criar avaliação</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/crud/curriculos">gerenciar curriculos</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/crud/cursos">gerenciar cursos</a></p>
+    <p><a href="/projeto-1.0-SNAPSHOT/crud/unidades">gerenciar unidades curriculares</a></p>
+  </body>
 </html>
