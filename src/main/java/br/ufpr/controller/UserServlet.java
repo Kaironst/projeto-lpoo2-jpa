@@ -1,7 +1,6 @@
 package br.ufpr.controller;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import br.ufpr.dao.CursoDAO;
 import br.ufpr.dao.PessoaDAO;
@@ -18,6 +17,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.List;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
@@ -30,10 +31,10 @@ public class UserServlet extends HttpServlet {
 
         try (var em = EMF.createEntityManager()) {
 
-            PessoaDAO pessoaDAO = new PessoaDAO(em);
-            TipoPessoaDAO tipoPessoaDAO = new TipoPessoaDAO(em);
-            CursoDAO cursoDAO = new CursoDAO(em);
-            UnidadeCurricularDAO unidadeDAO = new UnidadeCurricularDAO(em);
+            var pessoaDAO = new PessoaDAO(em);
+            var tipoPessoaDAO = new TipoPessoaDAO(em);
+            var cursoDAO = new CursoDAO(em);
+            var unidadeDAO = new UnidadeCurricularDAO(em);
 
             String acao = req.getParameter("acao");
             String idStr = req.getParameter("id");
@@ -43,8 +44,11 @@ public class UserServlet extends HttpServlet {
                 Pessoa user = pessoaDAO.findById(id);
                 req.setAttribute("userEditar", user);
 
-            } else if ("deletar".equals(acao) && idStr != null) {
+                // Pré-carregar cursos e atividades selecionadas
+                req.setAttribute("userCursos", user.getCurso());
+                req.setAttribute("userAtividades", user.getAtividades());
 
+            } else if ("deletar".equals(acao) && idStr != null) {
                 long id = Long.parseLong(idStr);
                 Pessoa user = pessoaDAO.findById(id);
 
@@ -85,9 +89,9 @@ public class UserServlet extends HttpServlet {
             long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
             TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
 
-            // Lê listas de IDs do input hidden
-            String[] cursoIds = req.getParameter("cursoIds").split(",");
-            String[] atividadeIds = req.getParameter("atividadeIds").split(",");
+            // Lê cursos e atividades a partir de arrays de inputs hidden do HTML
+            String[] cursoIds = req.getParameterValues("cursoIds");
+            String[] atividadeIds = req.getParameterValues("atividadeIds");
 
             Pessoa pessoa;
             if (idStr != null && !idStr.isEmpty()) {
@@ -112,15 +116,15 @@ public class UserServlet extends HttpServlet {
             }
 
             // Atualiza listas de cursos e atividades
-            pessoa.setCurso(Arrays.stream(cursoIds)
-                    .filter(s -> !s.isEmpty())
-                    .map(s -> cursoDAO.buscarPorId(Long.parseLong(s)))
-                    .toList());
+            pessoa.setCurso(cursoIds == null ? List.of() :
+                    Arrays.stream(cursoIds)
+                          .map(s -> cursoDAO.buscarPorId(Long.parseLong(s)))
+                          .toList());
 
-            pessoa.setAtividades(Arrays.stream(atividadeIds)
-                    .filter(s -> !s.isEmpty())
-                    .map(s -> unidadeDAO.buscarPorId(Long.parseLong(s)))
-                    .toList());
+            pessoa.setAtividades(atividadeIds == null ? List.of() :
+                    Arrays.stream(atividadeIds)
+                          .map(s -> unidadeDAO.buscarPorId(Long.parseLong(s)))
+                          .toList());
 
             if (idStr != null && !idStr.isEmpty()) {
                 pessoaDAO.update(pessoa);
