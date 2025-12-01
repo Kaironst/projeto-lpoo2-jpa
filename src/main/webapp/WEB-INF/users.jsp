@@ -2,6 +2,7 @@
 <html>
 <head><title>Users</title></head>
 <body>
+    <jsp:include page="/WEB-INF/navbar.jsp" />
     <h2>User List</h2>
     <table border="1">
         <tr><th>ID</th><th>Name</th><th>Email</th><th>CPF</th><th>Periodo</th><th>Tipo</th></tr>

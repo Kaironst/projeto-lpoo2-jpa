@@ -12,7 +12,7 @@
   </style>
 </head>
 <body>
-
+    <jsp:include page="/WEB-INF/navbar.jsp" />
   <h1>Nova Avaliação</h1>
 
   <form action="nova-avaliacao" method="post">

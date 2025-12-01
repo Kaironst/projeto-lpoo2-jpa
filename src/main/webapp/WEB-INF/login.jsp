@@ -12,7 +12,7 @@
   </style>
 </head>
 <body>
-
+    <jsp:include page="/WEB-INF/navbar.jsp" />
   <h2>Login</h2>
 
   <c:if test="${not empty erro}">

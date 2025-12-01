@@ -6,7 +6,7 @@
     <title>Lista de Avaliações</title>
   </head>
   <body>
-
+      <jsp:include page="/WEB-INF/navbar.jsp" />
     <h3>Links para todas as páginas necessárias</h1>
 
     <p><a href="/projeto-1.0-SNAPSHOT/login">login</a></p>

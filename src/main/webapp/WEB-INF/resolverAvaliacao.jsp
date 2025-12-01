@@ -7,7 +7,8 @@
   <title>Resolver Avaliação ${avaliacao.id}</title>
 </head>
 <body>
-
+    
+  <jsp:include page="/WEB-INF/navbar.jsp" />
   <h1>Resolver Avaliação #${avaliacao.id}</h1>
 
   <form action="resolver-avaliacao" method="post">

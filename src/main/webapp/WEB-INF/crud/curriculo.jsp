@@ -7,7 +7,7 @@
 </head>
 
 <body>
-
+    <jsp:include page="/WEB-INF/navbar.jsp" />
     <h1>Cadastro de Currículo</h1>
 
     <form action="curriculos" method="post">

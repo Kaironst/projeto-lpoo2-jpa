@@ -8,7 +8,7 @@
   <title>Lista de Avaliações</title>
 </head>
 <body>
-
+    <jsp:include page="/WEB-INF/navbar.jsp" />
   <h1>Lista de Avaliações</h1>
 
   <table border="1" cellpadding="6" cellspacing="0">

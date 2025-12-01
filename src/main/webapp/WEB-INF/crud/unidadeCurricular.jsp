@@ -7,7 +7,7 @@
 </head>
 
 <body>
-
+    <jsp:include page="/WEB-INF/navbar.jsp" />
     <h1>Cadastro de Unidade Curricular</h1>
 
     <form action="unidades" method="post">

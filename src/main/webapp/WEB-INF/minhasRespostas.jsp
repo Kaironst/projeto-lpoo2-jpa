@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-
+    <jsp:include page="/WEB-INF/navbar.jsp" />
   <h1>Minhas Respostas</h1>
 
   <c:choose>
