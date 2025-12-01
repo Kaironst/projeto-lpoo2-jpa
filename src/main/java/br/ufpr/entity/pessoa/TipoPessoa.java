@@ -34,4 +34,10 @@ public class TipoPessoa {
         this.podeCriarForms = podeCriarForms;
         this.podeResponderForms = podeResponderForms;
     }
+  
+  @Override
+    public String toString() {
+    return "TipoPessoa{id=" + id + ", nome=" + nome + "}";
 }
+}
+

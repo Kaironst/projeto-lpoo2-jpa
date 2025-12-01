@@ -31,7 +31,7 @@ public class UserServlet extends HttpServlet {
       tipoPessoaDAO.createDefaultTypesIfEmpty();
 
       req.setAttribute("users", pessoaDAO.findAll());
-      req.setAttribute("tipos", tipoPessoaDAO.findAll());
+      req.setAttribute("tipos", tipoPessoaDAO.listarTodos());
 
       req.getRequestDispatcher("/WEB-INF/users.jsp").forward(req, resp);
     }
@@ -58,7 +58,7 @@ public class UserServlet extends HttpServlet {
       }
 
       long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
-      TipoPessoa tipo = tipoPessoaDAO.findById(tipoId);
+      TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
       pessoa.setTipo(tipo);
 
       pessoa.setSenha(req.getParameter("senha"));

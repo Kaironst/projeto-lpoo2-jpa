@@ -32,5 +32,10 @@ public class Pessoa {
 
   @ManyToMany
   private List<Curso> curso;
-
+  
+  
+  @Override
+    public String toString() {
+    return "Pessoa{id=" + id + ", nome=" + nome + "}";
+}
 }

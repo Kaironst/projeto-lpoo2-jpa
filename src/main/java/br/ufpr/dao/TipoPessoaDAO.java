@@ -11,16 +11,16 @@ public class TipoPessoaDAO {
 
   private final EntityManager em;
 
-  public List<TipoPessoa> findAll() {
+  public List<TipoPessoa> listarTodos() {
     return em.createQuery("SELECT t FROM TipoPessoa t", TipoPessoa.class)
         .getResultList();
   }
 
-  public TipoPessoa findById(Long id) {
+  public TipoPessoa buscarPorId(Long id) {
     return em.find(TipoPessoa.class, id);
   }
 
-  public void save(TipoPessoa tipo) {
+  public void salvar(TipoPessoa tipo) {
     em.getTransaction().begin();
     em.persist(tipo);
     em.getTransaction().commit();
@@ -32,7 +32,7 @@ public class TipoPessoaDAO {
     em.getTransaction().commit();
   }
 
-  public void delete(TipoPessoa tipo) {
+  public void deletar(TipoPessoa tipo) {
     em.getTransaction().begin();
     TipoPessoa managed = em.contains(tipo) ? tipo : em.merge(tipo);
     em.remove(managed);
