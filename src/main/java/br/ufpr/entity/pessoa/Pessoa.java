@@ -3,6 +3,7 @@ package br.ufpr.entity.pessoa;
 import java.util.List;
 
 import br.ufpr.entity.curso.Curso;
+import br.ufpr.entity.curso.UnidadeCurricular;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,10 +33,13 @@ public class Pessoa {
 
   @ManyToMany
   private List<Curso> curso;
-  
-  
+
+  @ManyToMany
+  private List<UnidadeCurricular> atividades;
+
   @Override
-    public String toString() {
+  public String toString() {
     return "Pessoa{id=" + id + ", nome=" + nome + "}";
-}
+  }
+
 }
