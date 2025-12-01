@@ -17,85 +17,87 @@ import java.io.IOException;
 @WebServlet("/crud/unidades")
 public class UnidadeCurricularServlet extends HttpServlet {
 
-  private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("persistence");
+    private static final EntityManagerFactory EMF =
+            Persistence.createEntityManagerFactory("persistence");
 
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-    try (var em = EMF.createEntityManager()) {
+        try (var em = EMF.createEntityManager()) {
 
-      var unidadeDAO = new UnidadeCurricularDAO(em);
-      var curriculoDAO = new CurriculoDAO(em);
+            UnidadeCurricularDAO unidadeDAO = new UnidadeCurricularDAO(em);
+            CurriculoDAO curriculoDAO = new CurriculoDAO(em);
 
-      String acao = req.getParameter("acao");
-      String idStr = req.getParameter("id");
+            String acao = req.getParameter("acao");
+            String idStr = req.getParameter("id");
 
-      if ("editar".equals(acao) && idStr != null) {
-        long id = Long.parseLong(idStr);
-        UnidadeCurricular unidade = unidadeDAO.buscarPorId(id);
-        req.setAttribute("unidadeEditar", unidade);
-      }
+            if ("editar".equals(acao) && idStr != null) {
+                long id = Long.parseLong(idStr);
+                UnidadeCurricular unidade = unidadeDAO.buscarPorId(id);
+                req.setAttribute("unidadeEditar", unidade);
+            }
 
-      else if ("deletar".equals(acao) && idStr != null) {
-        long id = Long.parseLong(idStr);
-        UnidadeCurricular unidade = unidadeDAO.buscarPorId(id);
-        if (unidade != null) {
-          unidadeDAO.deletar(unidade);
+            else if ("deletar".equals(acao) && idStr != null) {
+                long id = Long.parseLong(idStr);
+                UnidadeCurricular unidade = unidadeDAO.buscarPorId(id);
+
+                if (unidade != null) {
+                    unidadeDAO.deletar(unidade);
+                }
+
+                resp.sendRedirect(req.getContextPath() + "/crud/unidades");
+                return;
+            }
+
+            req.setAttribute("unidades", unidadeDAO.listarTodos());
+            req.setAttribute("curriculos", curriculoDAO.listarTodos());
+
+            req.getRequestDispatcher("/WEB-INF/crud/unidadeCurricular.jsp").forward(req, resp);
         }
-        resp.sendRedirect(req.getContextPath() + "/crud/unidades");
-        return;
-      }
-
-      req.setAttribute("unidades", unidadeDAO.listarTodos());
-      req.setAttribute("curriculos", curriculoDAO.listarTodos());
-
-      req.getRequestDispatcher("/WEB-INF/crud/unidadeCurricular.jsp").forward(req, resp);
     }
-  }
 
-  @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
 
-    try (var em = EMF.createEntityManager()) {
+        try (var em = EMF.createEntityManager()) {
 
-      var curriculoDAO = new CurriculoDAO(em);
-      var unidadeDAO = new UnidadeCurricularDAO(em);
+            UnidadeCurricularDAO unidadeDAO = new UnidadeCurricularDAO(em);
+            CurriculoDAO curriculoDAO = new CurriculoDAO(em);
 
-      String idStr = req.getParameter("id");
-      String nome = req.getParameter("nome");
-      String descricao = req.getParameter("descricao");
-      String tipoStr = req.getParameter("tipo");
-      long curriculoId = Long.parseLong(req.getParameter("curriculoId"));
+            String idStr = req.getParameter("id");
+            String nome = req.getParameter("nome");
+            String descricao = req.getParameter("descricao");
+            String tipoStr = req.getParameter("tipo");
+            long curriculoId = Long.parseLong(req.getParameter("curriculoId"));
 
-      Curriculo curriculo = curriculoDAO.buscarPorId(curriculoId);
-      UnidadeCurricular.Tipo tipo = UnidadeCurricular.Tipo.valueOf(tipoStr);
+            Curriculo curriculo = curriculoDAO.buscarPorId(curriculoId);
+            UnidadeCurricular.Tipo tipo = UnidadeCurricular.Tipo.valueOf(tipoStr);
 
-      if (idStr != null && !idStr.isEmpty()) {
-        long id = Long.parseLong(idStr);
-        UnidadeCurricular unidade = unidadeDAO.buscarPorId(id);
+            if (idStr != null && !idStr.isEmpty()) {
+                long id = Long.parseLong(idStr);
+                UnidadeCurricular unidade = unidadeDAO.buscarPorId(id);
 
-        if (unidade != null) {
-          unidade.setNome(nome);
-          unidade.setDescricao(descricao);
-          unidade.setTipo(tipo);
-          unidade.setCurriculo(curriculo);
-          unidadeDAO.atualizar(unidade);
+                unidade.setNome(nome);
+                unidade.setDescricao(descricao);
+                unidade.setTipo(tipo);
+                unidade.setCurriculo(curriculo);
+
+                unidadeDAO.atualizar(unidade);
+            }
+
+            else {
+                UnidadeCurricular unidade = new UnidadeCurricular();
+                unidade.setNome(nome);
+                unidade.setDescricao(descricao);
+                unidade.setTipo(tipo);
+                unidade.setCurriculo(curriculo);
+
+                unidadeDAO.salvar(unidade);
+            }
+
+            resp.sendRedirect(req.getContextPath() + "/crud/unidades");
         }
-      }
-
-      else {
-        UnidadeCurricular unidade = new UnidadeCurricular();
-        unidade.setNome(nome);
-        unidade.setDescricao(descricao);
-        unidade.setTipo(tipo);
-        unidade.setCurriculo(curriculo);
-        unidadeDAO.salvar(unidade);
-      }
-
-      resp.sendRedirect(req.getContextPath() + "/crud/unidades");
     }
-  }
-
 }

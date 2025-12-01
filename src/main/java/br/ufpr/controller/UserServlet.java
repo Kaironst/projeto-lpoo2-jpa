@@ -25,17 +25,36 @@ public class UserServlet extends HttpServlet {
 
     try (var em = EMF.createEntityManager()) {
 
-      var tipoPessoaDAO = new TipoPessoaDAO(em);
-      var pessoaDAO = new PessoaDAO(em);
+            PessoaDAO pessoaDAO = new PessoaDAO(em);
+            TipoPessoaDAO tipoPessoaDAO = new TipoPessoaDAO(em);
+      
+            String acao = req.getParameter("acao");
+            String idStr = req.getParameter("id");
 
-      tipoPessoaDAO.createDefaultTypesIfEmpty();
+            if ("editar".equals(acao) && idStr != null) {
+                long id = Long.parseLong(idStr);
+                Pessoa user = pessoaDAO.findById(id);
+                req.setAttribute("userEditar", user);
 
-      req.setAttribute("users", pessoaDAO.findAll());
-      req.setAttribute("tipos", tipoPessoaDAO.listarTodos());
+            } else if ("deletar".equals(acao) && idStr != null) {
 
-      req.getRequestDispatcher("/WEB-INF/users.jsp").forward(req, resp);
+                long id = Long.parseLong(idStr);
+                Pessoa user = pessoaDAO.findById(id);
+
+                if (user != null) {
+                    pessoaDAO.delete(user);
+                }
+
+                resp.sendRedirect(req.getContextPath() + "/users");
+                return;
+            }
+
+            req.setAttribute("users", pessoaDAO.findAll());
+            req.setAttribute("tipos", tipoPessoaDAO.listarTodos());
+
+            req.getRequestDispatcher("/WEB-INF/users.jsp").forward(req, resp);
+        }
     }
-  }
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -43,29 +62,47 @@ public class UserServlet extends HttpServlet {
 
     try (var em = EMF.createEntityManager()) {
 
-      var tipoPessoaDAO = new TipoPessoaDAO(em);
-      var pessoaDAO = new PessoaDAO(em);
+            var pessoaDAO = new PessoaDAO(em);
+            var tipoPessoaDAO = new TipoPessoaDAO(em);
 
-      Pessoa pessoa = new Pessoa();
-      pessoa.setNome(req.getParameter("nome"));
-      pessoa.setEmail(req.getParameter("email"));
-      pessoa.setCpf(req.getParameter("cpf"));
+            String idStr = req.getParameter("id");
+            String nome = req.getParameter("nome");
+            String email = req.getParameter("email");
+            String cpf = req.getParameter("cpf");
+            int periodo = Integer.parseInt(req.getParameter("periodo"));
+            String senha = req.getParameter("senha");
 
-      try {
-        pessoa.setPeriodo(Integer.valueOf(req.getParameter("periodo")));
-      } catch (Exception e) {
-        pessoa.setPeriodo(1);
-      }
+            long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
+            TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
 
-      long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
-      TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
-      pessoa.setTipo(tipo);
+            Pessoa pessoa;
 
-      pessoa.setSenha(req.getParameter("senha"));
+            if (idStr != null && !idStr.isEmpty()) {
+                long id = Long.parseLong(idStr);
+                pessoa = pessoaDAO.findById(id);
 
-      pessoaDAO.save(pessoa);
+                pessoa.setNome(nome);
+                pessoa.setEmail(email);
+                pessoa.setCpf(cpf);
+                pessoa.setPeriodo(periodo);
+                pessoa.setSenha(senha);
+                pessoa.setTipo(tipo);
 
-      resp.sendRedirect("users");
+                pessoaDAO.update(pessoa);
+
+            } else {
+                pessoa = new Pessoa();
+                pessoa.setNome(nome);
+                pessoa.setEmail(email);
+                pessoa.setCpf(cpf);
+                pessoa.setPeriodo(periodo);
+                pessoa.setSenha(senha);
+                pessoa.setTipo(tipo);
+
+                pessoaDAO.save(pessoa);
+            }
+
+            resp.sendRedirect(req.getContextPath() + "/users");
+        }
     }
-  }
 }

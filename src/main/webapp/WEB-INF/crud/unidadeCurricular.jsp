@@ -23,16 +23,30 @@
 
         <label>Tipo:</label><br/>
         <select name="tipo" required>
-            <option value="DISCIPLINA" ${unidadeEditar.tipo == 'DISCIPLINA' ? 'selected' : ''}>DISCIPLINA</option>
-            <option value="ATIVIDADE_FORMATIVA" ${unidadeEditar.tipo == 'ATIVIDADE_FORMATIVA' ? 'selected' : ''}>ATIVIDADE FORMATIVA</option>
-            <option value="ATIVIDADE_EXTENSAO" ${unidadeEditar.tipo == 'ATIVIDADE_EXTENSAO' ? 'selected' : ''}>ATIVIDADE DE EXTENSÃO</option>
+            <option value="DISCIPLINA"
+                <c:if test="${unidadeEditar != null && unidadeEditar.tipo == 'DISCIPLINA'}">selected</c:if>>
+                DISCIPLINA
+            </option>
+
+            <option value="ATIVIDADE_FORMATIVA"
+                <c:if test="${unidadeEditar != null && unidadeEditar.tipo == 'ATIVIDADE_FORMATIVA'}">selected</c:if>>
+                ATIVIDADE FORMATIVA
+            </option>
+
+            <option value="ATIVIDADE_EXTENSAO"
+                <c:if test="${unidadeEditar != null && unidadeEditar.tipo == 'ATIVIDADE_EXTENSAO'}">selected</c:if>>
+                ATIVIDADE DE EXTENSÃO
+            </option>
         </select>
         <br/><br/>
 
         <label>Currículo:</label><br/>
         <select name="curriculoId" required>
             <c:forEach var="c" items="${curriculos}">
-                <option value="${c.id}" ${unidadeEditar != null && c.id == unidadeEditar.curriculo.id ? 'selected' : ''}>
+                <option value="${c.id}"
+                    <c:if test="${unidadeEditar != null && unidadeEditar.curriculo != null && c.id == unidadeEditar.curriculo.id}">
+                        selected
+                    </c:if>>
                     ${c.curso.nome} - Período ${c.periodo}
                 </option>
             </c:forEach>
@@ -65,7 +79,7 @@
                 <td>${u.curriculo.curso.nome} - Período ${u.curriculo.periodo}</td>
                 <td>
                     <a href="unidades?acao=editar&id=${u.id}">Editar</a> |
-                    <a href="unidades?acao=deletar&id=${u.id}" 
+                    <a href="unidades?acao=deletar&id=${u.id}"
                        onclick="return confirm('Deseja realmente excluir esta unidade curricular?')">Excluir</a>
                 </td>
             </tr>

@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ public class UnidadeCurricular {
   @OneToMany(mappedBy = "unidadeCurricular")
   private List<Avaliacao> avaliacoes;
 
-  @OneToMany(mappedBy = "atividades", cascade = CascadeType.REMOVE)
+  @ManyToMany(mappedBy = "atividades", cascade = CascadeType.REMOVE)
   private List<Pessoa> pessoas;
 
 }
