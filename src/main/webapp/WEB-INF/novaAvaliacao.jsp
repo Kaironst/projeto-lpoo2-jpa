@@ -24,6 +24,11 @@
       <label style="margin-left: 20px;">
         <input type="checkbox" name="isAnon" /> Anônima
       </label>
+      <select name="unidadeCurricular">
+          <c:forEach var="uc" items="${unidades}">
+              <option value="${uc.id}">${uc.nome}</option>
+          </c:forEach>
+      </select><br/>
     </div>
 
     <h2>Questões</h2>

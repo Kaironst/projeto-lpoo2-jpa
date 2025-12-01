@@ -2,12 +2,16 @@ package br.ufpr.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import br.ufpr.dao.AvaliacaoDAO;
+import br.ufpr.dao.PessoaDAO;
+import br.ufpr.dao.UnidadeCurricularDAO;
 import br.ufpr.entity.avaliacao.Alternativa;
 import br.ufpr.entity.avaliacao.Avaliacao;
 import br.ufpr.entity.avaliacao.Questao;
+import br.ufpr.entity.curso.UnidadeCurricular;
 import br.ufpr.entity.pessoa.Pessoa;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -34,8 +38,23 @@ public class NovaAvaliacaoServlet extends HttpServlet {
       return;
     }
 
-    // Apenas encaminha para a JSP — não deve abrir EntityManager!
-    req.getRequestDispatcher("/WEB-INF/novaAvaliacao.jsp").forward(req, resp);
+    try (var em = EMF.createEntityManager()) {
+      var pessoaDAO = new PessoaDAO(em);
+
+      Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+      // atualiza usuario
+      usuario = pessoaDAO.findById(usuario.getId());
+      if (usuario.getTipo().getPodeCriarForms())
+        return;
+
+      var unidades = new LinkedList<UnidadeCurricular>();
+      usuario.getAtividades().forEach(u -> unidades.add(u));
+      req.setAttribute("unidades", unidades);
+
+      req.getRequestDispatcher("/WEB-INF/novaAvaliacao.jsp").forward(req, resp);
+
+    }
+
   }
 
   @Override
@@ -51,15 +70,20 @@ public class NovaAvaliacaoServlet extends HttpServlet {
         return;
       }
 
-      Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
-
       var avaliacaoDAO = new AvaliacaoDAO(em);
+      var unidadeDAO = new UnidadeCurricularDAO(em);
+      var pessoaDAO = new PessoaDAO(em);
+
+      Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
 
       Avaliacao avaliacao = new Avaliacao();
       avaliacao.setAberta(req.getParameter("isAberta") != null);
       avaliacao.setAnon(req.getParameter("isAnon") != null);
+      avaliacao.setUnidadeCurricular(unidadeDAO.buscarPorId(Integer.parseInt(req.getParameter("unidadeCurricular"))));
 
       List<Questao> questoes = new ArrayList<>();
+      // atualiza usuario
+      usuario = pessoaDAO.findById(usuario.getId());
 
       int q = 0;
       while (req.getParameter("questao[" + q + "].enunciado") != null) {
