@@ -55,6 +55,8 @@ public class ResolverAvaliacaoServlet extends HttpServlet {
       }
 
       Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+      if (usuario.getTipo().getPodeResponderForms())
+        return;
 
       Resposta respostaExistente = respostaDAO.buscarRespostaPorAvaliacaoEUsuario(avaliacao.getId(), usuario.getId());
 
