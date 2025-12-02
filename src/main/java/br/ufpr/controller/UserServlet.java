@@ -37,6 +37,16 @@ public class UserServlet extends HttpServlet {
       var cursoDAO = new CursoDAO(em);
       var unidadeDAO = new UnidadeCurricularDAO(em);
 
+      if (tipoPessoaDAO.listarTodos().isEmpty()) {
+        tipoPessoaDAO.salvar(TipoPessoa.builder().nome("aluno").podeCriarForms(false).podeResponderForms(true).build());
+        tipoPessoaDAO
+            .salvar(TipoPessoa.builder().nome("professor").podeCriarForms(true).podeResponderForms(false).build());
+        tipoPessoaDAO
+            .salvar(TipoPessoa.builder().nome("administrador").podeCriarForms(true).podeResponderForms(true).build());
+        tipoPessoaDAO
+            .salvar(TipoPessoa.builder().nome("coordenador").podeCriarForms(true).podeResponderForms(true).build());
+      }
+
       String acao = req.getParameter("acao");
       String idStr = req.getParameter("id");
 
