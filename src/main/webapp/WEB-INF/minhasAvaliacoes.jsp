@@ -20,6 +20,7 @@
             <th>Aberta?</th>
             <th>Anônima?</th>
             <th>Qtd. Questões</th>
+            <th>Qtd. Respostas</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -44,6 +45,8 @@
             </td>
 
             <td>${av.questoes != null ? fn:length(av.questoes) : 0}</td>
+
+            <td>${av.questoes != null ? fn:length(av.resposta) : 0}</td>
 
             <td>
                 <!-- BOTÃO DE TOGGLE ABERTA/FECHADA -->
