@@ -30,6 +30,10 @@
     <a href="${pageContext.request.contextPath}/lista-avaliacoes" style="color:white; margin-right:15px;">
         lista avaliacoes
     </a>
+        
+    <a href="${pageContext.request.contextPath}/minhas-avaliacoes" style="color:white; margin-right:15px;">
+        minhas avaliacoes
+    </a>
     
     <a href="${pageContext.request.contextPath}/nova-avaliacao" style="color:white; margin-right:15px;">
         nova avaliacao

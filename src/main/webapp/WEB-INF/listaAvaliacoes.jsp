@@ -23,6 +23,7 @@
     </thead>
     <tbody>
       <c:forEach var="av" items="${avaliacoes}">
+    <c:if test="${av.aberta}">
         <tr>
           <td>${av.id}</td>
           <td><c:choose>
@@ -41,7 +42,8 @@
             </form>
           </td>
         </tr>
-      </c:forEach>
+    </c:if>
+</c:forEach>
     </tbody>
   </table>
 
