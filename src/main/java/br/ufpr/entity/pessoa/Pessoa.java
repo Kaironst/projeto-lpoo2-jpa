@@ -2,6 +2,7 @@ package br.ufpr.entity.pessoa;
 
 import java.util.List;
 
+import br.ufpr.entity.avaliacao.Avaliacao;
 import br.ufpr.entity.curso.Curso;
 import br.ufpr.entity.curso.UnidadeCurricular;
 import jakarta.persistence.CascadeType;
@@ -9,10 +10,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
 import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,9 @@ public class Pessoa {
 
   @ManyToOne
   private TipoPessoa tipo;
+
+  @OneToMany(mappedBy = "dono", cascade = CascadeType.ALL)
+  private List<Avaliacao> avaliacoesCriadas;
 
   @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<Curso> curso;

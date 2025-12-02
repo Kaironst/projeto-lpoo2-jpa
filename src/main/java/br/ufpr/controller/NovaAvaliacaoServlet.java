@@ -75,11 +75,13 @@ public class NovaAvaliacaoServlet extends HttpServlet {
       var pessoaDAO = new PessoaDAO(em);
 
       Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
+      usuario = pessoaDAO.findById(usuario.getId());
 
       Avaliacao avaliacao = new Avaliacao();
       avaliacao.setAberta(req.getParameter("isAberta") != null);
       avaliacao.setAnon(req.getParameter("isAnon") != null);
       avaliacao.setUnidadeCurricular(unidadeDAO.buscarPorId(Integer.parseInt(req.getParameter("unidadeCurricular"))));
+      avaliacao.setDono(usuario);
 
       List<Questao> questoes = new ArrayList<>();
       // atualiza usuario

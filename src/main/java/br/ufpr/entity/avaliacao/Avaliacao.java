@@ -3,6 +3,7 @@ package br.ufpr.entity.avaliacao;
 import java.util.List;
 
 import br.ufpr.entity.curso.UnidadeCurricular;
+import br.ufpr.entity.pessoa.Pessoa;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,13 +30,16 @@ public class Avaliacao {
   private boolean isAberta;
   private boolean isAnon;
 
+  @ManyToOne(cascade = CascadeType.ALL)
+  private Pessoa dono;
+
   @ManyToOne
   private UnidadeCurricular unidadeCurricular;
 
   @OneToMany(mappedBy = "avaliacao", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Questao> questoes;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  private Resposta resposta;
+  @OneToMany(mappedBy = "avaliacao", cascade = CascadeType.ALL)
+  private List<Resposta> resposta;
 
 }

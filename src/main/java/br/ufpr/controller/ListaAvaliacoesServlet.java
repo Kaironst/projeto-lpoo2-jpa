@@ -39,8 +39,10 @@ public class ListaAvaliacoesServlet extends HttpServlet {
       // atualiza usuario
       usuario = pessoaDAO.findById(usuario.getId());
 
-      if (!usuario.getTipo().getPodeResponderForms())
+      if (!usuario.getTipo().getPodeResponderForms()) {
+        resp.sendRedirect("users");
         return;
+      }
 
       LinkedList<Avaliacao> avaliacoes = new LinkedList<>();
       usuario.getAtividades().forEach(e -> e.getAvaliacoes().forEach(a -> avaliacoes.add(a)));
