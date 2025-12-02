@@ -80,8 +80,8 @@ public class NovaAvaliacaoServlet extends HttpServlet {
       usuario = pessoaDAO.findById(usuario.getId());
 
       Avaliacao avaliacao = new Avaliacao();
-      avaliacao.setAberta(req.getParameter("isAberta") != null);
-      avaliacao.setAnon(req.getParameter("isAnon") != null);
+      avaliacao.setAberta(true);
+      avaliacao.setAnon(false);
       avaliacao.setUnidadeCurricular(unidadeDAO.buscarPorId(Integer.parseInt(req.getParameter("unidadeCurricular"))));
       avaliacao.setDono(usuario);
 
