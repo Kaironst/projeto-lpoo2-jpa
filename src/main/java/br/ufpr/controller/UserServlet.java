@@ -1,6 +1,9 @@
 package br.ufpr.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import br.ufpr.dao.CursoDAO;
 import br.ufpr.dao.PessoaDAO;
@@ -17,8 +20,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.List;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
@@ -42,20 +43,17 @@ public class UserServlet extends HttpServlet {
             if ("editar".equals(acao) && idStr != null) {
                 long id = Long.parseLong(idStr);
                 Pessoa user = pessoaDAO.findById(id);
-                req.setAttribute("userEditar", user);
 
-                // Pré-carregar cursos e atividades selecionadas
-                req.setAttribute("userCursos", user.getCurso());
-                req.setAttribute("userAtividades", user.getAtividades());
+                // Forçar carregamento das coleções
+                if (user.getCurso() != null) user.getCurso().size();
+                if (user.getAtividades() != null) user.getAtividades().size();
+
+                req.setAttribute("userEditar", user);
 
             } else if ("deletar".equals(acao) && idStr != null) {
                 long id = Long.parseLong(idStr);
                 Pessoa user = pessoaDAO.findById(id);
-
-                if (user != null) {
-                    pessoaDAO.delete(user);
-                }
-
+                if (user != null) pessoaDAO.delete(user);
                 resp.sendRedirect(req.getContextPath() + "/users");
                 return;
             }
@@ -85,52 +83,44 @@ public class UserServlet extends HttpServlet {
             String cpf = req.getParameter("cpf");
             int periodo = Integer.parseInt(req.getParameter("periodo"));
             String senha = req.getParameter("senha");
-
             long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
             TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
 
-            // Lê cursos e atividades a partir de arrays de inputs hidden do HTML
             String[] cursoIds = req.getParameterValues("cursoIds");
             String[] atividadeIds = req.getParameterValues("atividadeIds");
 
-            Pessoa pessoa;
-            if (idStr != null && !idStr.isEmpty()) {
-                long id = Long.parseLong(idStr);
-                pessoa = pessoaDAO.findById(id);
+            Pessoa pessoa = (idStr != null && !idStr.isEmpty())
+                    ? pessoaDAO.findById(Long.parseLong(idStr))
+                    : new Pessoa();
 
-                pessoa.setNome(nome);
-                pessoa.setEmail(email);
-                pessoa.setCpf(cpf);
-                pessoa.setPeriodo(periodo);
-                pessoa.setSenha(senha);
-                pessoa.setTipo(tipo);
+            pessoa.setNome(nome);
+            pessoa.setEmail(email);
+            pessoa.setCpf(cpf);
+            pessoa.setPeriodo(periodo);
+            pessoa.setSenha(senha);
+            pessoa.setTipo(tipo);
 
-            } else {
-                pessoa = new Pessoa();
-                pessoa.setNome(nome);
-                pessoa.setEmail(email);
-                pessoa.setCpf(cpf);
-                pessoa.setPeriodo(periodo);
-                pessoa.setSenha(senha);
-                pessoa.setTipo(tipo);
+            // Busca entidades existentes e relaciona
+            List<Curso> cursos = new ArrayList<>();
+            if (cursoIds != null) {
+                for (String cid : cursoIds) {
+                    Curso c = cursoDAO.buscarPorId(Long.parseLong(cid));
+                    if (c != null) cursos.add(c);
+                }
             }
+            pessoa.setCurso(cursos);
 
-            // Atualiza listas de cursos e atividades
-            pessoa.setCurso(cursoIds == null ? List.of() :
-                    Arrays.stream(cursoIds)
-                          .map(s -> cursoDAO.buscarPorId(Long.parseLong(s)))
-                          .toList());
-
-            pessoa.setAtividades(atividadeIds == null ? List.of() :
-                    Arrays.stream(atividadeIds)
-                          .map(s -> unidadeDAO.buscarPorId(Long.parseLong(s)))
-                          .toList());
-
-            if (idStr != null && !idStr.isEmpty()) {
-                pessoaDAO.update(pessoa);
-            } else {
-                pessoaDAO.save(pessoa);
+            List<UnidadeCurricular> atividades = new ArrayList<>();
+            if (atividadeIds != null) {
+                for (String aid : atividadeIds) {
+                    UnidadeCurricular a = unidadeDAO.buscarPorId(Long.parseLong(aid));
+                    if (a != null) atividades.add(a);
+                }
             }
+            pessoa.setAtividades(atividades);
+
+            // Salva ou atualiza
+            pessoaDAO.saveOrUpdate(pessoa);
 
             resp.sendRedirect(req.getContextPath() + "/users");
         }

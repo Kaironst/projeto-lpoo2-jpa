@@ -28,4 +28,5 @@ public class Curso {
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.REMOVE)
     private List<Curriculo> curriculos;
+    
 }

@@ -47,5 +47,7 @@ public class UnidadeCurricular {
 
   @ManyToMany(mappedBy = "atividades", cascade = CascadeType.REMOVE)
   private List<Pessoa> pessoas;
-
+  
+  
+  
 }

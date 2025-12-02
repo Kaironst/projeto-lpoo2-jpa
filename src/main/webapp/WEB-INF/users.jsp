@@ -103,10 +103,11 @@ function addCurso(id, nome) {
     div.dataset.id = id;
 
     const span = document.createElement('span');
+    console.log('nome:', nome);
     span.className = 'item-text';
-    span.textContent = `${id} - ${nome}`;
+    span.textContent = nome;
     div.appendChild(span);
-
+    
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = `cursoIds[${cursoCounter}]`;
@@ -135,7 +136,7 @@ function addAtividade(id, nome) {
 
     const span = document.createElement('span');
     span.className = 'item-text';
-    span.textContent = `${id} - ${nome}`;
+    span.textContent = nome;
     div.appendChild(span);
 
     const input = document.createElement('input');
