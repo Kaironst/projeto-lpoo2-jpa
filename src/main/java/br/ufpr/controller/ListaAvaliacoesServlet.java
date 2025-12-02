@@ -45,7 +45,10 @@ public class ListaAvaliacoesServlet extends HttpServlet {
       }
 
       LinkedList<Avaliacao> avaliacoes = new LinkedList<>();
-      usuario.getAtividades().forEach(e -> e.getAvaliacoes().forEach(a -> avaliacoes.add(a)));
+      usuario.getAtividades().forEach(e -> e.getAvaliacoes().forEach(a -> {
+        if (a.isAberta())
+          avaliacoes.add(a);
+      }));
 
       req.setAttribute("avaliacoes", avaliacoes);
       req.getRequestDispatcher("/WEB-INF/listaAvaliacoes.jsp")
