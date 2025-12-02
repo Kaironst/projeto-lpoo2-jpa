@@ -44,8 +44,10 @@ public class NovaAvaliacaoServlet extends HttpServlet {
       Pessoa usuario = (Pessoa) session.getAttribute("usuarioLogado");
       // atualiza usuario
       usuario = pessoaDAO.findById(usuario.getId());
-      if (usuario.getTipo().getPodeCriarForms())
+      if (!usuario.getTipo().getPodeCriarForms()) {
+        resp.sendRedirect("lista-avaliacoes");
         return;
+      }
 
       var unidades = new LinkedList<UnidadeCurricular>();
       usuario.getAtividades().forEach(u -> unidades.add(u));
