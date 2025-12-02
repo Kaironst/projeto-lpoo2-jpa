@@ -14,7 +14,7 @@
 
 <h3>Add/Edit User</h3>
 <form method="post" action="users">
-
+    <input type="hidden" name="id" value="${userEditar.id}">
     <label>Nome:</label><br/>
     <input type="text" name="nome" value="${userEditar.nome}" required/><br/><br/>
 
