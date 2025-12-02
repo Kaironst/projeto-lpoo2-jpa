@@ -35,55 +35,50 @@ public class Pessoa {
   @ManyToOne
   private TipoPessoa tipo;
 
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-    name = "pessoa_curso",
-    joinColumns = @JoinColumn(name = "pessoa_id"),
-    inverseJoinColumns = @JoinColumn(name = "curso_id")
-)
+  @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<Curso> curso;
 
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-    name = "pessoa_unidadecurricular",
-    joinColumns = @JoinColumn(name = "pessoa_id"),
-    inverseJoinColumns = @JoinColumn(name = "atividades_id")
-)
+  @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<UnidadeCurricular> atividades;
 
   @Override
   public String toString() {
     return "Pessoa{id=" + id + ", nome=" + nome + "}";
   }
-  
-  public void addAtividade(UnidadeCurricular atividade) {
-    if (atividades == null) atividades = new ArrayList<>();
-    if (!atividades.contains(atividade)) atividades.add(atividade);
 
-    if (atividade.getPessoas() == null) atividade.setPessoas(new ArrayList<>());
-    if (!atividade.getPessoas().contains(this)) atividade.getPessoas().add(this);
-}
+  public void addAtividade(UnidadeCurricular atividade) {
+    if (atividades == null)
+      atividades = new ArrayList<>();
+    if (!atividades.contains(atividade))
+      atividades.add(atividade);
+
+    if (atividade.getPessoas() == null)
+      atividade.setPessoas(new ArrayList<>());
+    if (!atividade.getPessoas().contains(this))
+      atividade.getPessoas().add(this);
+  }
 
   public void setAtividades(List<UnidadeCurricular> listaAtividades) {
     this.atividades = new ArrayList<>();
     if (listaAtividades != null) {
-        for (UnidadeCurricular u : listaAtividades) {
-            addAtividade(u); // usa addAtividade para manter bidirecional
-        }
+      for (UnidadeCurricular u : listaAtividades) {
+        addAtividade(u); // usa addAtividade para manter bidirecional
+      }
     }
-}
+  }
+
   public void setCurso(List<Curso> cursos) {
     this.curso = cursos;
 
     if (cursos != null) {
-        for (Curso c : cursos) {
-            if (c.getPessoas() == null) {
-                c.setPessoas(new ArrayList<>());
-            }
-            if (!c.getPessoas().contains(this)) {
-                c.getPessoas().add(this);
-            }
+      for (Curso c : cursos) {
+        if (c.getPessoas() == null) {
+          c.setPessoas(new ArrayList<>());
         }
+        if (!c.getPessoas().contains(this)) {
+          c.getPessoas().add(this);
+        }
+      }
     }
-}
+  }
 }

@@ -58,9 +58,6 @@ public class PessoaDAO {
       pessoa.setAtividades(managedAtividades);
     }
 
-    // Atualiza lado inverso das relações bidirecionais
-    syncManyToMany(pessoa);
-
     if (pessoa.getId() == 0) {
       em.persist(pessoa);
     } else {
@@ -78,24 +75,4 @@ public class PessoaDAO {
     tx.commit();
   }
 
-  /** Mantém consistência bidirecional ManyToMany */
-  private void syncManyToMany(Pessoa pessoa) {
-    if (pessoa.getCurso() != null) {
-      for (Curso c : pessoa.getCurso()) {
-        if (c.getPessoas() == null)
-          c.setPessoas(new ArrayList<>());
-        if (!c.getPessoas().contains(pessoa))
-          c.getPessoas().add(pessoa);
-      }
-    }
-
-    if (pessoa.getAtividades() != null) {
-      for (UnidadeCurricular a : pessoa.getAtividades()) {
-        if (a.getPessoas() == null)
-          a.setPessoas(new ArrayList<>());
-        if (!a.getPessoas().contains(pessoa))
-          a.getPessoas().add(pessoa);
-      }
-    }
-  }
 }
