@@ -96,7 +96,7 @@ function addCurso(id, nome) {
     console.log('addCurso chamado com:', id, nome);
     const container = document.getElementById('cursosContainer');
     if (!id) return;
-    if (container.querySelector(`[data-id='${id}']`)) return;
+    if (container.querySelector(`[data-id='\${id}']`)) return;
 
     const div = document.createElement('div');
     div.className = 'item-block';
@@ -110,7 +110,7 @@ function addCurso(id, nome) {
     
     const input = document.createElement('input');
     input.type = 'hidden';
-    input.name = `cursoIds[${cursoCounter}]`;
+    input.name = `cursoIds[\${cursoCounter}]`;
     input.value = id;
     div.appendChild(input);
 
@@ -128,7 +128,7 @@ function addAtividade(id, nome) {
     console.log('addAtividade chamado com:', id, nome);
     const container = document.getElementById('atividadesContainer');
     if (!id) return;
-    if (container.querySelector(`[data-id='${id}']`)) return;
+    if (container.querySelector(`[data-id='\${id}']`)) return;
 
     const div = document.createElement('div');
     div.className = 'item-block';
@@ -141,7 +141,7 @@ function addAtividade(id, nome) {
 
     const input = document.createElement('input');
     input.type = 'hidden';
-    input.name = `atividadeIds[${atividadeCounter}]`;
+    input.name = `atividadeIds[\${atividadeCounter}]`;
     input.value = id;
     div.appendChild(input);
 

@@ -24,105 +24,97 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
 
-    private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("persistence");
+  private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("persistence");
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
 
-        try (var em = EMF.createEntityManager()) {
+    try (var em = EMF.createEntityManager()) {
 
-            var pessoaDAO = new PessoaDAO(em);
-            var tipoPessoaDAO = new TipoPessoaDAO(em);
-            var cursoDAO = new CursoDAO(em);
-            var unidadeDAO = new UnidadeCurricularDAO(em);
+      var pessoaDAO = new PessoaDAO(em);
+      var tipoPessoaDAO = new TipoPessoaDAO(em);
+      var cursoDAO = new CursoDAO(em);
+      var unidadeDAO = new UnidadeCurricularDAO(em);
 
-            String acao = req.getParameter("acao");
-            String idStr = req.getParameter("id");
+      String acao = req.getParameter("acao");
+      String idStr = req.getParameter("id");
 
-            if ("editar".equals(acao) && idStr != null) {
-                long id = Long.parseLong(idStr);
-                Pessoa user = pessoaDAO.findById(id);
+      if ("editar".equals(acao) && idStr != null) {
+        long id = Long.parseLong(idStr);
+        Pessoa user = pessoaDAO.findById(id);
 
-                // Forçar carregamento das coleções
-                if (user.getCurso() != null) user.getCurso().size();
-                if (user.getAtividades() != null) user.getAtividades().size();
+        // Forçar carregamento das coleções
+        if (user.getCurso() != null)
+          user.getCurso().size();
+        if (user.getAtividades() != null)
+          user.getAtividades().size();
 
-                req.setAttribute("userEditar", user);
+        req.setAttribute("userEditar", user);
 
-            } else if ("deletar".equals(acao) && idStr != null) {
-                long id = Long.parseLong(idStr);
-                Pessoa user = pessoaDAO.findById(id);
-                if (user != null) pessoaDAO.delete(user);
-                resp.sendRedirect(req.getContextPath() + "/users");
-                return;
-            }
+      } else if ("deletar".equals(acao) && idStr != null) {
+        long id = Long.parseLong(idStr);
+        Pessoa user = pessoaDAO.findById(id);
+        if (user != null)
+          pessoaDAO.delete(user);
+        resp.sendRedirect(req.getContextPath() + "/users");
+        return;
+      }
 
-            req.setAttribute("users", pessoaDAO.findAll());
-            req.setAttribute("tipos", tipoPessoaDAO.listarTodos());
-            req.setAttribute("cursos", cursoDAO.listarTodos());
-            req.setAttribute("atividades", unidadeDAO.listarTodos());
+      req.setAttribute("users", pessoaDAO.findAll());
+      req.setAttribute("tipos", tipoPessoaDAO.listarTodos());
+      req.setAttribute("cursos", cursoDAO.listarTodos());
+      req.setAttribute("atividades", unidadeDAO.listarTodos());
 
-            req.getRequestDispatcher("/WEB-INF/users.jsp").forward(req, resp);
-        }
+      req.getRequestDispatcher("/WEB-INF/users.jsp").forward(req, resp);
     }
+  }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        try (var em = EMF.createEntityManager()) {
+    try (var em = EMF.createEntityManager()) {
 
-            var pessoaDAO = new PessoaDAO(em);
-            var tipoPessoaDAO = new TipoPessoaDAO(em);
-            var cursoDAO = new CursoDAO(em);
-            var unidadeDAO = new UnidadeCurricularDAO(em);
+      var pessoaDAO = new PessoaDAO(em);
+      var tipoPessoaDAO = new TipoPessoaDAO(em);
+      var cursoDAO = new CursoDAO(em);
+      var unidadeDAO = new UnidadeCurricularDAO(em);
 
-            String idStr = req.getParameter("id");
-            String nome = req.getParameter("nome");
-            String email = req.getParameter("email");
-            String cpf = req.getParameter("cpf");
-            int periodo = Integer.parseInt(req.getParameter("periodo"));
-            String senha = req.getParameter("senha");
-            long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
-            TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
+      String idStr = req.getParameter("id");
+      String nome = req.getParameter("nome");
+      String email = req.getParameter("email");
+      String cpf = req.getParameter("cpf");
+      int periodo = Integer.parseInt(req.getParameter("periodo"));
+      String senha = req.getParameter("senha");
+      long tipoId = Long.parseLong(req.getParameter("tipoPessoa"));
+      TipoPessoa tipo = tipoPessoaDAO.buscarPorId(tipoId);
 
-            String[] cursoIds = req.getParameterValues("cursoIds");
-            String[] atividadeIds = req.getParameterValues("atividadeIds");
+      List<Curso> cursos = new ArrayList<>();
+      for (int q = 0; req.getParameter("cursoIds[" + q + "]") != null; q++)
+        cursos.add(cursoDAO.buscarPorId(Integer.parseInt((req.getParameter("cursoIds[" + q + "]")))));
 
-            Pessoa pessoa = (idStr != null && !idStr.isEmpty())
-                    ? pessoaDAO.findById(Long.parseLong(idStr))
-                    : new Pessoa();
+      List<UnidadeCurricular> atividades = new ArrayList<>();
+      for (int q = 0; req.getParameter("atividadeIds[" + q + "]") != null; q++)
+        atividades.add(unidadeDAO.buscarPorId(Integer.parseInt((req.getParameter("atividadeIds[" + q + "]")))));
 
-            pessoa.setNome(nome);
-            pessoa.setEmail(email);
-            pessoa.setCpf(cpf);
-            pessoa.setPeriodo(periodo);
-            pessoa.setSenha(senha);
-            pessoa.setTipo(tipo);
+      Pessoa pessoa = (idStr != null && !idStr.isEmpty())
+          ? pessoaDAO.findById(Long.parseLong(idStr))
+          : new Pessoa();
 
-            // Busca entidades existentes e relaciona
-            List<Curso> cursos = new ArrayList<>();
-            if (cursoIds != null) {
-                for (String cid : cursoIds) {
-                    Curso c = cursoDAO.buscarPorId(Long.parseLong(cid));
-                    if (c != null) cursos.add(c);
-                }
-            }
-            pessoa.setCurso(cursos);
+      pessoa.setNome(nome);
+      pessoa.setEmail(email);
+      pessoa.setCpf(cpf);
+      pessoa.setPeriodo(periodo);
+      pessoa.setSenha(senha);
+      pessoa.setTipo(tipo);
 
-            List<UnidadeCurricular> atividades = new ArrayList<>();
-            if (atividadeIds != null) {
-                for (String aid : atividadeIds) {
-                    UnidadeCurricular a = unidadeDAO.buscarPorId(Long.parseLong(aid));
-                    if (a != null) atividades.add(a);
-                }
-            }
-            pessoa.setAtividades(atividades);
+      pessoa.setCurso(cursos);
+      pessoa.setAtividades(atividades);
 
-            // Salva ou atualiza
-            pessoaDAO.saveOrUpdate(pessoa);
+      // Salva ou atualiza
+      pessoaDAO.saveOrUpdate(pessoa);
 
-            resp.sendRedirect(req.getContextPath() + "/users");
-        }
+      resp.sendRedirect(req.getContextPath() + "/users");
     }
+  }
 }
