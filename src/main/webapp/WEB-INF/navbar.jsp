@@ -38,5 +38,9 @@
     <a href="${pageContext.request.contextPath}/login" style="color:white; margin-right:15px;">
         login
     </a>
+
+    <a href="${pageContext.request.contextPath}/minhas-respostas" style="color:white; margin-right:15px;">
+        minhas respostas
+    </a>
 </nav>
 </html>
